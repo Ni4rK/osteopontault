@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, ViewChild} from '@angular/core';
+import {AfterContentInit, ChangeDetectorRef, Component, DoCheck, Input, OnInit, ViewChild} from '@angular/core';
 import {HexagonComponent} from "../hexagon/hexagon.component";
 import {NgClass, NgIf} from "@angular/common";
 import {ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule} from "@angular/forms";
@@ -36,7 +36,8 @@ export class InputPhoneComponent implements ControlValueAccessor {
   onChange = (p: string) => {};
   onTouched = () => {};
 
-  constructor(private readonly cd: ChangeDetectorRef) {
+  @ViewChild('inputMaskComponent') set inputMaskComponent(mask: InputMask) {
+    mask.inputViewChild!.nativeElement.inputMode = 'numeric'
   }
 
   writeValue(phone: string) {
