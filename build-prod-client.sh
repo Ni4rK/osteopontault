@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-OLD_VERSION=1.2
-NEW_VERSION=1.3
+OLD_VERSION=1.3
+NEW_VERSION=1.4
 
 cd client && \
   yarn run build && \

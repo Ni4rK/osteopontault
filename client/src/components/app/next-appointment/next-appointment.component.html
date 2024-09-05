@@ -11,7 +11,9 @@
       <span class="shortcut">Prochain RdV :&nbsp;</span>
     </div>
     <div class="NextAppointment-date">
-      <b>{{ DateHelper.format(firstSlot.from, DateFormat.DATE_TIME) }}</b>
+      <b>{{ DateHelper.format(firstSlot.from, DateFormat.MEDIUM_DATE) }}</b>
+      à
+      <b>{{ DateHelper.format(firstSlot.from, DateFormat.TIME) }}</b>
       <span class="ml-6 pi pi-arrow-right"></span>
     </div>
   </div>

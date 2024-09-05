@@ -26,18 +26,7 @@ export default class HttpService {
       }
     } : {}).pipe(
       catchError((error) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) {
-          this.toastService.sendToast({
-            severity: "info",
-            summary: "Votre session a expirée, la page va s'actualiser pour démarrer une nouvelle session"
-          })
-          this.cacheService.set({
-            authenticationToken: null,
-            role: null
-          })
-          window.setTimeout(() => window.location.reload(), 2000)
-          return of()
-        }
+        this.handleError(error)
         return throwError(error)
       })
     )
@@ -51,18 +40,7 @@ export default class HttpService {
       }
     } : {}).pipe(
       catchError((error) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) {
-          this.toastService.sendToast({
-            severity: "info",
-            summary: "Votre session a expirée, la page va s'actualiser pour démarrer une nouvelle session"
-          })
-          this.cacheService.set({
-            authenticationToken: null,
-            role: null
-          })
-          window.setTimeout(() => window.location.reload(), 2000)
-          return of()
-        }
+        this.handleError(error)
         return throwError(error)
       })
     )
@@ -76,18 +54,7 @@ export default class HttpService {
       }
     } : {}).pipe(
       catchError((error) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) {
-          this.toastService.sendToast({
-            severity: "info",
-            summary: "Votre session a expirée, la page va s'actualiser pour démarrer une nouvelle session"
-          })
-          this.cacheService.set({
-            authenticationToken: null,
-            role: null
-          })
-          window.setTimeout(() => window.location.reload(), 2000)
-          return of()
-        }
+        this.handleError(error)
         return throwError(error)
       })
     )
@@ -101,20 +68,32 @@ export default class HttpService {
       }
     } : {}).pipe(
       catchError((error) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) {
-          this.toastService.sendToast({
-            severity: "info",
-            summary: "Votre session a expirée, la page va s'actualiser pour démarrer une nouvelle session"
-          })
-          this.cacheService.set({
-            authenticationToken: null,
-            role: null
-          })
-          window.setTimeout(() => window.location.reload(), 2000)
-          return of()
-        }
+        this.handleError(error)
         return throwError(error)
       })
     )
+  }
+
+  private handleError(error: unknown) {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 410) {
+        this.toastService.sendToast({
+          severity: "info",
+          summary: "Votre session a expirée, la page va s'actualiser pour démarrer une nouvelle session",
+          life: 4000
+        })
+        this.cacheService.set({
+          authenticationToken: null,
+          role: null
+        })
+        window.setTimeout(() => window.location.reload(), 4000)
+      }
+      if (error.status === 401) {
+        this.toastService.sendToast({
+          severity: "error",
+          summary: "Impossible de vous authentifier"
+        })
+      }
+    }
   }
 }

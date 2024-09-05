@@ -64,14 +64,5 @@ export class AdminComponent implements OnInit {
   onLoggedIn() {
     this.username = this.cacheService.cache.username
     this.isAuthenticatedAsPractitioner = true
-    this.loadAvailabilities()
-  }
-
-  onAvailabilityAdded() {
-    this.loadAvailabilities()
-  }
-
-  loadAvailabilities() {
-    this.availabilityListComponent.loadAvailabilities()
   }
 }

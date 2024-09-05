@@ -2,7 +2,7 @@ import {Component, EventEmitter, Output} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {InputTextModule} from "primeng/inputtext";
 import {Button} from "primeng/button";
-import {take} from "rxjs";
+import {catchError, take, throwError} from "rxjs";
 import {Role} from "@shared/types/role.enum";
 import AuthenticationService from "../../../services/authentication.service";
 import ToasterService from "../../../services/toaster.service";
@@ -40,7 +40,13 @@ export class LoginComponent {
       this.authenticationService.authenticate(Role.PRACTITIONER, {
         username: this.username,
         password: this.password
-      }).pipe(take(1)).subscribe(() => {
+      }).pipe(
+        take(1),
+        catchError((error) => {
+          this.isAuthenticatingAsPractitioner = false
+          return throwError(error)
+        })
+      ).subscribe(() => {
         this.toastService.sendToast({
           severity: "success",
           summary: `Connecté en tant que ${this.username}`

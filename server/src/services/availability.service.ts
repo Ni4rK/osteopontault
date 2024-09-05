@@ -64,7 +64,7 @@ export default class AvailabilityService {
   }
 
   static async insertAvailabilitySlots(slots: (Slot)[]): Promise<void> {
-    await slots.forEach(async slot => {
+    for (const slot of slots) {
       const hasPatient = !!slot.patient && !!slot.patient.firstname && !!slot.patient.lastname && !!slot.patient.phone && !!slot.patient.type
       await clientDatabase.insert({
         TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
@@ -80,7 +80,7 @@ export default class AvailabilityService {
           patientType: hasPatient ? slot.patient!.type : null
         }
       })
-    })
+    }
   }
 
   static async updateAvailabilitySlots(slots: SlotPersisted[]): Promise<void> {

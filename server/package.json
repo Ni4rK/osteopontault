@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc && tsc-alias",
-    "watch": "concurrently --kill-others 'tsc -w' 'tsc-alias -w'",
-    "script:generate:password": "generate-password.js"
+    "watch": "concurrently --kill-others 'tsc -w' 'tsc-alias -w'"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.632.0",

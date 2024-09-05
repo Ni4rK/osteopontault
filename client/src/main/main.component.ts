@@ -11,11 +11,7 @@ import {RouterOutlet} from '@angular/router';
 export class MainComponent implements OnInit {
   ngOnInit() {
     window.addEventListener("resize", () => {
-      console.log(`window resized: innerHeight=${window.innerHeight}, outerHeight=${window.outerHeight}`)
+      document.body.style.height = `${window.innerHeight}px`
     })
-    const resizeObserver = new ResizeObserver(entries =>
-      console.log(`body resized: clientHeight=${entries[0].target.clientHeight}`)
-    )
-    resizeObserver.observe(document.body)
   }
 }

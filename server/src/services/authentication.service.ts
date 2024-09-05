@@ -1,18 +1,14 @@
-import jwt from 'jsonwebtoken';
+import jwt, {TokenExpiredError} from 'jsonwebtoken';
 import {Role} from "@shared/types/role.enum";
-import {isNumber, isObject} from "@shared/helpers/common-types.guards";
-import databaseClient from "../database/client.database";
 import UnauthorizedException from "../exceptions/unauthorized.exception";
 import {Guest} from "@shared/types/guest.type";
 import {Practitioner, isPractitioner} from "@shared/types/practitioner.enum";
 import {AuthCredentials} from "@shared/types/auth-credentials.type";
 import {isTokenPayloadGuest, isTokenPayloadPractitioner} from "@shared/types/auth-token-payload.type";
-import {isMember} from "@shared/types/member.interface";
-import DbTable from "@shared/types/db-table.enum";
 import PasswordService from "./password.service";
 import EnvironmentHelper from "../utils/environment.helper";
-import BadRequestException from "../exceptions/bad-request.exception";
 import MemberService from "./member.service";
+import GoneException from "../exceptions/gone.exception";
 
 export default class AuthenticationService {
   static async getToken(role: Role, credentials?: AuthCredentials): Promise<string> {
@@ -51,6 +47,9 @@ export default class AuthenticationService {
         return decodedPayload.practitioner
       }
     } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new GoneException()
+      }
       throw new UnauthorizedException()
     }
     throw new UnauthorizedException()
