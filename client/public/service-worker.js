@@ -7,7 +7,6 @@ self.addEventListener('push', (event) => {
     event.waitUntil(self.registration.showNotification(json.title, {
       body: json.body,
       icon: "/images/icon.png",
-      badge: "/images/badge.png",
       vibrate: [200, 100, 200, 100, 200, 100, 200],
       data: {
         url: json.url || "/#/cd2a469ed5e3"
