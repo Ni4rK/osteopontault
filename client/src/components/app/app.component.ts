@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
-import {HeaderComponent} from "../_shared/header/header.component";
+import {HeaderComponent} from "../_design-system/header/header.component";
 import {TimelineComponent} from "./timeline/timeline.component";
 import {Button} from "primeng/button";
 import {Availability} from "@shared/types/availability.interface";
@@ -18,7 +18,7 @@ import {InfosComponent} from "./infos/infos.component";
 import {OsteopathyComponent} from "./osteopathy/osteopathy.component";
 import {SlotPersisted} from "@shared/types/slot.interface";
 import {AppointmentComponent} from "./appointment/appointment.component";
-import {ToasterComponent} from "../_shared/toaster/toaster.component";
+import {ToasterComponent} from "../_design-system/toaster/toaster.component";
 import ToasterService from "../../services/toaster.service";
 
 @Component({

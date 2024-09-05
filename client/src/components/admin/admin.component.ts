@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Button} from "primeng/button";
-import {HeaderComponent} from "../_shared/header/header.component";
+import {HeaderComponent} from "../_design-system/header/header.component";
 import {NextAppointmentComponent} from "../app/next-appointment/next-appointment.component";
 import AuthenticationService from "../../services/authentication.service";
 import {Role} from "@shared/types/role.enum";
@@ -14,7 +14,7 @@ import {CacheService} from "../../services/cache.service";
 import {LoginComponent} from "./login/login.component";
 import {LogoutComponent} from "./logout/logout.component";
 import {AvailabilityListComponent} from "./availability-list/availability-list.component";
-import {ToasterComponent} from "../_shared/toaster/toaster.component";
+import {ToasterComponent} from "../_design-system/toaster/toaster.component";
 import {PwaPromptComponent} from "./pwa-prompt/pwa-prompt.component";
 
 @Component({

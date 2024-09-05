@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Output} from '@angular/core';
-import {HexagonComponent} from "../../_design-system/hexagon/hexagon.component";
+import {HexagonComponent} from "../hexagon/hexagon.component";
 import {Button} from "primeng/button";
 import {TabMenuModule} from "primeng/tabmenu";
 import {MenuItem} from "primeng/api";
