@@ -73,6 +73,26 @@ p-divider {
   }
 }
 
+.p-element.ng-invalid.ng-touched {
+  input {
+    border-color: #b00020;
+    box-shadow: inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020;
+  }
+}
+input.ng-invalid.ng-touched {
+  border-color: #b00020;
+  box-shadow: inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020;
+}
+p-inputmask {
+  &.invalid {
+    input {
+      border-color: #b00020;
+      box-shadow: inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020, inset 0 0 0 1px #b00020;
+    }
+  }
+}
+
+
 .p-inputotp {
   gap: 0;
   input {

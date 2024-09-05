@@ -1,0 +1,13 @@
+<p-inputMask
+  mask="9 9 • 9 9 • 9 9 • 9 9 • 9 9"
+  inputmode="numeric"
+  [ngClass]="{
+    'invalid': !valid,
+  }"
+  [autoClear]="false"
+  [disabled]="disabled"
+  [(ngModel)]="phone"
+  (onFocus)="onFocus()"
+  (ngModelChange)="onPhoneChanged()"
+  (onComplete)="onPhoneCompleted()"
+/>

@@ -35,11 +35,7 @@
     <p-divider/>
     <p class="Appointment-form-input">
       <label> Téléphone * </label>
-      <p-inputOtp
-        [length]="10"
-        [integerOnly]="true"
-        [formControl]="form.controls.phone"
-      />
+      <op-input-phone [formControl]="form.controls.phone"/>
     </p>
     <p-divider/>
     <p class="Appointment-form-input">

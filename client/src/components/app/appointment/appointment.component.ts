@@ -15,9 +15,10 @@ import {Patient, PatientType} from "@shared/types/patient.interface";
 import {InputOtpModule} from "primeng/inputotp";
 import AvailabilityService from "../../../services/availability.service";
 import {catchError, of, take} from "rxjs";
-import {AppointmentForm, createAppointmentForm} from "./appointment.form";
+import {PatientForm, createPatientForm} from "../../../forms/patient.form";
 import ToasterService from "../../../services/toaster.service";
 import {PractitionerIconComponent} from "../../_design-system/practitioner-icon/practitioner-icon.component";
+import {InputPhoneComponent} from "../../_design-system/input-phone/input-phone.component";
 
 @Component({
   selector: 'op-appointment',
@@ -35,7 +36,8 @@ import {PractitionerIconComponent} from "../../_design-system/practitioner-icon/
     FormsModule,
     InputOtpModule,
     ReactiveFormsModule,
-    PractitionerIconComponent
+    PractitionerIconComponent,
+    InputPhoneComponent
   ],
   templateUrl: './appointment.component.html',
   styleUrl: './appointment.component.scss'
@@ -55,7 +57,7 @@ export class AppointmentComponent {
   protected readonly PatientType = PatientType;
 
   isBookingAppointment = false
-  form: AppointmentForm = createAppointmentForm()
+  form: PatientForm = createPatientForm()
 
   constructor(
     private readonly availabilityService: AvailabilityService,

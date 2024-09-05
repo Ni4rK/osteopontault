@@ -6,13 +6,13 @@
   <p-header>
     Modifier un créneau
   </p-header>
-  <div class="Availability-edit-form">
+  <form class="Availability-edit-form" [formGroup]="form">
     <input type="hidden"/>
     <p class="Availability-edit-form-input">
       <label> De : </label>
       <p-calendar
         appendTo="body"
-        [(ngModel)]="editedSlot.from"
+        [formControl]="form.controls.from"
         [timeOnly]="true"
       />
     </p>
@@ -20,7 +20,7 @@
       <label> À : </label>
       <p-calendar
         appendTo="body"
-        [(ngModel)]="editedSlot.to"
+        [formControl]="form.controls.to"
         [timeOnly]="true"
         [showOnFocus]="false"
       />
@@ -30,43 +30,60 @@
       <p-dropdown
         appendTo="body"
         [options]="Object.values(Practitioner)"
-        [(ngModel)]="editedSlot.practitioner"
+        [formControl]="form.controls.practitioner"
       />
     </p>
     <p-divider/>
     <p class="Availability-edit-form-input mb-24" style="flex-direction: row">
       <label> Patient : </label>
-      <p-inputSwitch [(ngModel)]="editedSlot.hasPatient" (onChange)="onHasPatientChanged()"/>
+      <p-inputSwitch
+        [formControl]="form.controls.hasPatient"
+        (onChange)="onHasPatientChanged()"
+      />
     </p>
-    <ng-container *ngIf="editedSlot.hasPatient">
-      <p *ngIf="editedSlot.bookedAt" class="Availability-edit-form-input">
+    <ng-container *ngIf="form.controls.hasPatient.value" [formGroup]="form.controls.patient">
+      <p *ngIf="form.controls.bookedAt.value" class="Availability-edit-form-input">
         <label> Créneau pris le </label>
         <p-calendar
           appendTo="body"
           [dateFormat]="DateFormat.DATE_PRIME"
-          [(ngModel)]="editedSlot.bookedAt"
+          [formControl]="form.controls.bookedAt"
           [showTime]="true"
           [disabled]="true"
         />
       </p>
       <p class="Availability-edit-form-input">
         <label> Nom </label>
-        <input type="text" pInputText [(ngModel)]="editedSlot.patient!.lastname"/>
+        <input
+          type="text"
+          pInputText
+          [formControl]="form.controls.patient.controls.lastname"
+        />
       </p>
       <p class="Availability-edit-form-input">
         <label> Prénom </label>
-        <input type="text" pInputText [(ngModel)]="editedSlot.patient!.firstname"/>
+        <input
+          type="text"
+          pInputText
+          [formControl]="form.controls.patient.controls.firstname"
+        />
       </p>
       <p class="Availability-edit-form-input">
         <label> Téléphone </label>
-        <p-inputOtp [length]="10" [integerOnly]="true" [(ngModel)]="editedSlot.patient!.phone"/>
+        <op-input-phone
+          [formControl]="form.controls.patient.controls.phone"
+        />
       </p>
       <p class="Availability-edit-form-input">
         <label> Type de séance : </label>
-        <p-dropdown appendTo="body" [options]="Object.values(PatientType)" [(ngModel)]="editedSlot.patient!.type"/>
+        <p-dropdown
+          appendTo="body"
+          [options]="Object.values(PatientType)"
+          [formControl]="form.controls.patient.controls.type"
+        />
       </p>
     </ng-container>
-  </div>
+  </form>
   <p-footer>
     <p-button (onClick)="cancelled.emit()">Annuler</p-button>
     <p-button (onClick)="onRemoveSlot()" severity="danger" [loading]="isEditingSlot">Supprimer</p-button>

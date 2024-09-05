@@ -5,7 +5,7 @@ import {Button} from "primeng/button";
 import {CalendarModule} from "primeng/calendar";
 import {DividerModule} from "primeng/divider";
 import {DialogModule} from "primeng/dialog";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DropdownModule} from "primeng/dropdown";
 import {PaginatorModule} from "primeng/paginator";
 import DateFormat from "@shared/types/date-format.enum";
@@ -13,11 +13,13 @@ import {take} from "rxjs";
 import AvailabilityService from "../../../services/availability.service";
 import {NgIf} from "@angular/common";
 import {SlotPersisted} from "@shared/types/slot.interface";
-import {Patient, PatientType} from "@shared/types/patient.interface";
+import {PatientType} from "@shared/types/patient.interface";
 import ToasterService from "../../../services/toaster.service";
 import {InputOtpModule} from "primeng/inputotp";
 import {InputTextModule} from "primeng/inputtext";
 import {InputSwitchModule} from "primeng/inputswitch";
+import {InputPhoneComponent} from "../../_design-system/input-phone/input-phone.component";
+import {createSlotForm} from "../../../forms/slot.form";
 
 @Component({
   selector: 'op-availability-edit',
@@ -36,7 +38,9 @@ import {InputSwitchModule} from "primeng/inputswitch";
     NgIf,
     InputOtpModule,
     InputTextModule,
-    InputSwitchModule
+    InputSwitchModule,
+    InputPhoneComponent,
+    ReactiveFormsModule
   ],
   templateUrl: './availability-edit.component.html',
   styleUrl: './availability-edit.component.scss'
@@ -62,14 +66,7 @@ export class AvailabilityEditComponent implements OnChanges {
 
   isEditingSlot = false
   isRemovingSlot = false
-  editedSlot = {
-    from: new Date(),
-    to: new Date(),
-    practitioner: Practitioner.ROSE,
-    bookedAt: undefined as Date | undefined,
-    hasPatient: false,
-    patient: null as Patient | null
-  }
+  form = createSlotForm()
 
   constructor(
     private readonly availabilityService: AvailabilityService,
@@ -81,27 +78,29 @@ export class AvailabilityEditComponent implements OnChanges {
     const slotChanges = changes['slot']
     if (slotChanges) {
       const slot = slotChanges.currentValue as SlotPersisted
-      this.editedSlot = {
+      this.form.patchValue({
         from: new Date(slot.from),
         to: new Date(slot.to),
         practitioner: slot.practitioner,
         bookedAt: slot.bookedAt ? new Date(slot.bookedAt) : undefined,
-        hasPatient: slot.patient !== null,
-        patient: slot.patient
+        hasPatient: slot.hasPatient,
+      })
+      if (slot.patient) {
+        this.form.controls.patient.patchValue({
+          ...slot.patient
+        })
       }
     }
   }
 
   onHasPatientChanged() {
-    if (this.editedSlot.hasPatient) {
-      this.editedSlot.patient = this.slot.patient ?? {
+    if (this.form.controls.hasPatient.value) {
+      this.form.controls.patient.patchValue(this.slot.patient ?? {
         firstname: "",
         lastname: "",
         phone: "0",
         type: PatientType.ADULT
-      }
-    } else {
-      this.editedSlot.patient = null
+      })
     }
   }
 
@@ -116,18 +115,23 @@ export class AvailabilityEditComponent implements OnChanges {
   onEditSlot() {
     const newSlotFrom = new Date(this.slot.from)
     const newSlotTo = new Date(this.slot.to)
-    newSlotFrom.setHours(this.editedSlot.from.getHours())
-    newSlotFrom.setMinutes(this.editedSlot.from.getMinutes())
-    newSlotTo.setHours(this.editedSlot.to.getHours())
-    newSlotTo.setMinutes(this.editedSlot.to.getMinutes())
+    newSlotFrom.setHours(this.form.controls.from.value!.getHours())
+    newSlotFrom.setMinutes(this.form.controls.from.value!.getMinutes())
+    newSlotTo.setHours(this.form.controls.to.value!.getHours())
+    newSlotTo.setMinutes(this.form.controls.to.value!.getMinutes())
     this.availabilityService.edit({
       uid: this.slot.uid,
       from: newSlotFrom.toISOString(),
       to: newSlotTo.toISOString(),
-      practitioner: this.editedSlot.practitioner,
-      bookedAt: this.editedSlot.bookedAt ? this.editedSlot.bookedAt.toISOString() : undefined,
-      hasPatient: this.editedSlot.hasPatient,
-      patient: this.editedSlot.hasPatient ? this.editedSlot.patient : null
+      practitioner: this.form.controls.practitioner.value!,
+      bookedAt: this.form.controls.bookedAt.value?.toISOString(),
+      hasPatient: !!this.form.controls.hasPatient.value,
+      patient: !this.form.controls.hasPatient.value ? null : {
+        firstname: this.form.controls.patient.controls.firstname.value!,
+        lastname: this.form.controls.patient.controls.lastname.value!,
+        phone: this.form.controls.patient.controls.phone.value!,
+        type: this.form.controls.patient.controls.type.value!
+      }
     }).pipe(take(1)).subscribe(() => {
       this.toastService.sendToast({
         severity: "success",

@@ -31,12 +31,12 @@
     </ng-container>
     <p class="Availability-add-form-input">
       <label> Créneaux de : </label>
-      <p-inputNumber [(ngModel)]="newAvailability.stepTime" suffix=" minutes"/>
+      <p-inputNumber required [(ngModel)]="newAvailability.stepTime" suffix=" minutes"/>
     </p>
     <p-divider/>
     <p class="Availability-add-form-input">
       <label> Nombre de créneaux : </label>
-      <p-inputNumber [(ngModel)]="newAvailability.howMany"/>
+      <p-inputNumber required [(ngModel)]="newAvailability.howMany"/>
     </p>
   </div>
   <p-footer>
