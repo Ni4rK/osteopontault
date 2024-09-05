@@ -1,0 +1,100 @@
+$weekWidthLargeScreen: calc(100vw - 2 * 3rem); // total viewport width - 2 * admin container padding
+$weekDayWidthLargeScreen: calc($weekWidthLargeScreen / 7); // week width divided
+$weekDayWidthSmallScreen: calc(100vw - 2 * 1rem - 10vw); // for small screens view, only 1 day can be viewed: total viewport width - admin container padding - some free space
+$weekHeight: calc(100vh - 70px - 2 * 1rem - 42px - 3rem - 42px - 5px); // total viewport height - header - admin container padding - filter height - filter margin bottom - scroll top size
+
+.Availability {
+  position: relative;
+  &-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  &-week {
+    display: flex;
+    height: $weekHeight;
+    background-color: white;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    overflow: auto;
+    @media (min-width: 1100px) {
+      width: $weekWidthLargeScreen;
+    }
+    &-day {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      width: $weekDayWidthLargeScreen;
+      @media (max-width: 1100px) {
+        width: $weekDayWidthSmallScreen;
+      }
+      &-title {
+        z-index: 2;
+        text-align: center;
+        color: white;
+        background-color: var(--primary-color);
+        padding: 1rem 0;
+        @media (min-width: 1100px) {
+          position: absolute;
+          width: $weekDayWidthLargeScreen;
+        }
+        @media (max-width: 1100px) {
+          position: inherit;
+          width: $weekDayWidthSmallScreen;
+        }
+      }
+      &:first-child {
+        .Availability-week-day-title {
+          border-top-left-radius: 1rem;
+        }
+      }
+      &:last-child {
+        .Availability-week-day-title {
+          border-top-right-radius: 1rem;
+        }
+      }
+      &-slots {
+        z-index: 1;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        @media (min-width: 1100px) {
+          margin-top: calc(52px + 1rem);
+        }
+      }
+      &-slot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .9rem;
+        height: 64px;
+        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+        margin-bottom: 1rem;
+        margin-left: .5rem;
+        margin-right: .5rem;
+        &.creator {
+          background: rgba(#4CAF50, 0.8);
+          justify-content: center;
+          height: 32px;
+        }
+        &-details {
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          &-patient {
+            display: flex;
+            align-items: center;
+            &-lastname {
+            }
+          }
+          .pi {
+            font-size: .8rem;
+          }
+        }
+      }
+    }
+  }
+}

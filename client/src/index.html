@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ostéopathe Pontault Combault</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="/images/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <script>
+    // sometimes event is fired before PWA service is loaded
+    window.osteopontault_pwa_beforeinstallpromptevent = null
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault()
+      window.osteopontault_pwa_beforeinstallpromptevent = event
+    })
+  </script>
+</head>
+<body>
+  <op-main></op-main>
+</body>
+</html>

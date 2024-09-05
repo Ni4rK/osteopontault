@@ -1,0 +1,18 @@
+<p-button
+  raised
+  severity="warning"
+  [style]="{ padding: '1rem', display: 'flex', alignItem: 'center' }"
+  (onClick)="onSlotClicked()"
+>
+  <div class="NextAppointment">
+    <div class="NextAppointment-prefix">
+      <span class="mr-6 pi pi-bolt"></span>
+      <span class="full">Prochain rendez-vous :&nbsp;</span>
+      <span class="shortcut">Prochain RdV :&nbsp;</span>
+    </div>
+    <div class="NextAppointment-date">
+      <b>{{ DateHelper.format(firstSlot.from, DateFormat.DATE_TIME) }}</b>
+      <span class="ml-6 pi pi-arrow-right"></span>
+    </div>
+  </div>
+</p-button>

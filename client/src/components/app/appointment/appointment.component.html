@@ -1,0 +1,65 @@
+<p-dialog
+  [modal]="true"
+  [closable]="false"
+  [visible]="true"
+  [showHeader]="false"
+  [draggable]="false"
+>
+  <div class="p-dialog-header Appointment-header">
+    <div class="p-dialog-title">
+      Créneau du {{ DateHelper.format(slot.from, DateFormat.DATE_TIME) }}
+    </div>
+    <op-practitioner-icon
+      [practitioner]="slot.practitioner"
+      [width]="50"
+    />
+  </div>
+  <form class="Appointment-form" [formGroup]="form">
+    <p class="Appointment-form-input">
+      <label> Nom * </label>
+      <input
+        type="text"
+        pInputText
+        [formControl]="form.controls.lastname"
+      />
+    </p>
+    <p-divider/>
+    <p class="Appointment-form-input">
+      <label> Prénom * </label>
+      <input
+        type="text"
+        pInputText
+        [formControl]="form.controls.firstname"
+      />
+    </p>
+    <p-divider/>
+    <p class="Appointment-form-input">
+      <label> Téléphone * </label>
+      <p-inputOtp
+        [length]="10"
+        [integerOnly]="true"
+        [formControl]="form.controls.phone"
+      />
+    </p>
+    <p-divider/>
+    <p class="Appointment-form-input">
+      <label> Type de séance : </label>
+      <p-dropdown
+        appendTo="body"
+        [options]="Object.values(PatientType)"
+        [formControl]="form.controls.type"
+      />
+    </p>
+  </form>
+  <p-footer>
+    <p-button (onClick)="cancelAppointment.emit()">Annuler</p-button>
+    <p-button
+      severity="warning"
+      (onClick)="onBookAppointment()"
+      [disabled]="!canBook"
+      [loading]="isBookingAppointment"
+    >
+      Réserver le créneau
+    </p-button>
+  </p-footer>
+</p-dialog>

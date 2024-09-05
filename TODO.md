@@ -1,0 +1,10 @@
+- Message to info people Rose is off for 3 months
+- Osteopathy dialog content
+- Add to my Google calendar
+- Send a reminder SMS
+- Build a PWA to notify practitioner whenever someone booked a slot
+- **[OK]** Assets versionning
+- **[OK]** Loading states
+- **[OK]** `bookedAt` field
+- **[OK]** Hide the feature "show Anais slots"
+- **[OK]** Responsiveness

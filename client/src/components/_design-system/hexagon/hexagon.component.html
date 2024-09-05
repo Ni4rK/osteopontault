@@ -1,0 +1,35 @@
+<div class="hexagon-container">
+  <div
+    *ngIf="raised"
+    class="hexagon-border"
+    [style]="{
+    'width': (width + 2) + 'px',
+    'height': (height + 2 * 1.1547) + 'px'
+  }"
+    [style.filter]="'url(#' + filterId + ')'"
+  ></div>
+  <div
+    class="hexagon-itself"
+    [id]="hexagonId"
+    [style]="{
+    'width': width + 'px',
+    'height': height + 'px'
+  }"
+    [style.filter]="'url(#' + filterId + ')'"
+  >
+    <div class="hexagon-itself-slot">
+      <ng-content></ng-content>
+    </div>
+
+    <!-- Apply border radius using a hidden SVG -->
+    <svg class="hexagon-itself-filter" width="0" height="0" xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <defs>
+        <filter [id]="filterId">
+          <feGaussianBlur in="SourceGraphic" [attr.stdDeviation]="borderRadius" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+          <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+</div>

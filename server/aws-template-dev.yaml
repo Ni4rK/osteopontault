@@ -1,0 +1,190 @@
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  osteopontault
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+Resources:
+  ######################################################
+  # Authentication Lambda Function
+  AuthenticationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/server/src/handlers/authentication.authenticationHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthenticationMemberTable
+      Environment:
+        Variables:
+          MODE: dev
+          DB_ENDPOINT: http://host.docker.internal:8000
+          AUTH_KEY: "just_for_dev"
+          AUTH_EXP_GUEST: 7200
+          AUTH_EXP_PRACTITIONER: 86400
+      Events:
+        getToken:
+          Type: Api
+          Properties:
+            Path: /authentication/token
+            Method: POST
+        addPwaSubscription:
+          Type: Api
+          Properties:
+            Path: /member/pwa_subscription
+            Method: PATCH
+
+  ######################################################
+  # Availability Lambda Function
+  AvailabilityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/server/src/handlers/availability.availabilityHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AvailabilitySlotTable
+      Environment:
+        Variables:
+          MODE: dev
+          DB_ENDPOINT: http://host.docker.internal:8000
+          VAPID_PRIVATE_KEY: "M9XTbd0rsdCAihCCJdrXQI7HwFKVl64axp_Jv82JnVU"
+          AUTH_KEY: "just_for_dev"
+          AUTH_EXP_GUEST: 7200
+          AUTH_EXP_PRACTITIONER: 86400
+      Events:
+        listSlots:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: GET
+        createSlots:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: POST
+        editSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: PATCH
+        bookSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot/book
+            Method: PATCH
+        deleteSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: DELETE
+
+  ######################################################
+  # Scripts Lambda Function
+  ScriptsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/server/src/handlers/scripts.scriptsHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Environment:
+        Variables:
+          MODE: dev
+          DB_ENDPOINT: http://host.docker.internal:8000
+          AUTH_KEY: "todo"
+          AUTH_EXP_GUEST: 7200
+          AUTH_EXP_PRACTITIONER: 86400
+      Events:
+        initDatabase:
+          Type: Api
+          Properties:
+            Path: /script/init_database
+            Method: GET
+        migrateDatabase:
+          Type: Api
+          Properties:
+            Path: /script/database_migration
+            Method: GET
+        createUser:
+          Type: Api
+          Properties:
+            Path: /script/create_user
+            Method: GET
+
+  ######################################################
+  # Options Lambda Function
+  OptionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/server/src/handlers/options.optionsHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Environment:
+        Variables:
+          MODE: dev
+          DB_ENDPOINT: http://host.docker.internal:8000
+      Events:
+        crudSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: OPTIONS
+        bookSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot/book
+            Method: OPTIONS
+        getToken:
+          Type: Api
+          Properties:
+            Path: /authentication/token
+            Method: OPTIONS
+        addPwaSubscription:
+          Type: Api
+          Properties:
+            Path: /member/pwa_subscription
+            Method: OPTIONS
+
+  ######################################################
+  # Database Tables
+  AuthenticationMemberTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: username
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  AvailabilitySlotTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1

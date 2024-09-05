@@ -1,0 +1,55 @@
+<div class="App">
+  <op-header
+    class="App-header"
+    (clickInfosMenuItem)="isInfosOpen = true"
+    (clickOsteopathyMenuItem)="isOsteopathyOpen = true"
+  />
+
+  <!--  <div class="App-filter">-->
+  <!--    <span class="mr-6" (click)="showAllSlots = !showAllSlots">-->
+  <!--      Afficher les rendez-vous de la remplaçante :-->
+  <!--    </span>-->
+  <!--    <p-inputSwitch [(ngModel)]="showAllSlots"/>-->
+  <!--  </div>-->
+
+  <div class="App-content">
+    <op-next-appointment
+      *ngIf="firstSlot"
+      class="App-next-appointment"
+      [firstSlot]="firstSlot"
+      (slotClicked)="onSlotClicked($event)"
+    />
+    <op-timeline
+      class="App-timeline"
+      [attr.id]="'timeline'"
+      [isLoading]="isLoadingAvailabilities"
+      [availabilities]="filteredAvailabilities"
+      (scroll)="onScroll()"
+      (slotClicked)="onSlotClicked($event)"
+    />
+  </div>
+
+  <p-button
+    *ngIf="showScrollTop"
+    class="App-scroll_top"
+    icon="pi pi-arrow-up"
+    (onClick)="onScrollTop()"
+  />
+
+  <op-infos
+    *ngIf="isInfosOpen"
+    (closeIt)="isInfosOpen = false"
+  />
+  <op-osteopathy
+    *ngIf="isOsteopathyOpen"
+    (closeIt)="isOsteopathyOpen = false"
+  />
+  <op-appointment
+    *ngIf="slotForAppointment"
+    [slot]="slotForAppointment"
+    (appointmentBooked)="onAppointmentBooked()"
+    (cancelAppointment)="onCancelAppointment()"
+  />
+
+  <op-toaster/>
+</div>

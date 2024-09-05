@@ -1,0 +1,23 @@
+<div class="Admin">
+
+  <op-header class="Admin-header"/>
+
+  <op-login
+    *ngIf="!isAuthenticatedAsPractitioner"
+    class="Admin-login"
+    (loggedIn)="onLoggedIn()"
+  />
+
+  <div *ngIf="isAuthenticatedAsPractitioner" class="Admin-container">
+    <op-availability-list
+      *ngIf="practitioner"
+      class="Admin-list"
+      #availabilityListComponent
+      [practitioner]="practitioner"
+    />
+    <op-pwa-prompt/>
+    <op-logout/>
+  </div>
+
+  <op-toaster/>
+</div>

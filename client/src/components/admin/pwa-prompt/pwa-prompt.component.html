@@ -1,0 +1,20 @@
+<p-dialog
+  [style]="{ maxWidth: '500px'}"
+  [modal]="true"
+  [closable]="false"
+  [visible]="show"
+>
+  <p-header>
+    Notifications
+  </p-header>
+  <div>
+    <p>
+      Afin de recevoir une alerte directement sur cet appareil lorsqu'un patient réserve un créneau,
+      vous devez activer les notifications.
+    </p>
+  </div>
+  <p-footer>
+    <p-button (onClick)="onDecline()">Refuser</p-button>
+    <p-button (onClick)="onAccept()" severity="warning" [loading]="isInstalling">Accepter</p-button>
+  </p-footer>
+</p-dialog>

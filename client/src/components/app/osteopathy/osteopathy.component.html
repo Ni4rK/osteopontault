@@ -1,0 +1,19 @@
+<p-dialog
+  [modal]="true"
+  [visible]="true"
+  [style]="{ maxWidth: '500px' }"
+  [closable]="false"
+>
+  <p-header>
+    Qu'est-ce-que l' <b>Ostéopathie</b> ?
+  </p-header>
+  <div>
+    C'est tout un truc avec craquage et massage où l'ostéopathe s'amuse sadiquement à vous faire mal.
+    Le ponpon c'est que l'ostéopathe fait genre c'est pour notre bien.
+    Alors que c'est juste du sadisme.
+    :D
+  </div>
+  <p-footer>
+    <p-button (onClick)="closeIt.emit()">Ok</p-button>
+  </p-footer>
+</p-dialog>

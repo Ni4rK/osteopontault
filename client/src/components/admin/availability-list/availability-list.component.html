@@ -1,0 +1,111 @@
+<div class="Availability-filter">
+  <p-button icon="pi pi-arrow-left" (onClick)="onPreviousWeek()"/>
+  <p-button (onClick)="onCurrentWeek()">
+    Semaine du {{ DateHelper.format(week[0], DateFormat.SHORT_DATE_API) }}
+  </p-button>
+  <p-button icon="pi pi-arrow-right" (onClick)="onNextWeek()"/>
+</div>
+
+<div class="Availability-week">
+  <ng-container *ngIf="isLoadingAvailabilities">
+    <p-progressSpinner [ngStyle]="{ margin: 'auto' }"/>
+  </ng-container>
+  <ng-container *ngIf="!isLoadingAvailabilities">
+    <div *ngFor="let dayOfWeek of week" class="Availability-week-day">
+      <div class="Availability-week-day-title">
+        {{ DateHelper.format(dayOfWeek, DateFormat.MEDIUM_DATE) }}
+      </div>
+      <div class="Availability-week-day-slots">
+        <ng-container *ngTemplateOutlet="availabilityForWeekDayTemplate; context: { dayOfWeek: dayOfWeek }"/>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<op-availability-edit
+  *ngIf="editingSlot"
+  [slot]="editingSlot"
+  (cancelled)="onCancelEdit()"
+  (slotEdited)="onSlotEditedOrRemoved()"
+  (slotRemoved)="onSlotEditedOrRemoved()"
+/>
+
+<op-availability-add
+  *ngIf="addingAvailability"
+  [practitioner]="practitioner"
+  [baseDates]="baseDatesForAddingAvailability"
+  (cancelAddingAvailability)="onCancelAdd()"
+  (availabilityAdded)="onAvailabilityAdded()"
+/>
+
+<ng-template #availabilityForWeekDayTemplate let-dayOfWeek="dayOfWeek">
+  <ng-container *ngIf="getSlotsFromDay(dayOfWeek) as slotsOfWeekDay">
+    <ng-container *ngIf="slotsOfWeekDay.length === 0">
+      <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
+            fromDate: getDefaultSlotDate(dayOfWeek),
+            toDate: null,
+            diffMinutes: null
+          }"/>
+    </ng-container>
+    <ng-container *ngFor="let slot of slotsOfWeekDay; index as index">
+      <ng-container *ngIf="index === 0">
+        <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
+              fromDate: null,
+              toDate: slotsOfWeekDay[index].from,
+              diffMinutes: null
+            }"/>
+      </ng-container>
+      <div
+        class="Availability-week-day-slot p-button p-button-text"
+        (click)="onEditSlot(slot)"
+        [ngClass]="{
+              'p-button-primary': slot.practitioner === Practitioner.ROSE,
+              'p-button-help': slot.practitioner === Practitioner.ANAIS,
+            }"
+      >
+        <div class="Availability-week-day-slot-details">
+          <div>
+            <span class="pi pi-clock"></span>
+            <span class="ml-8">{{ DateHelper.format(slot.from, DateFormat.TIME) }} ({{ DateHelper.parseMinutes(DateHelper.getDifferenceOfTime(slot.from, slot.to)) }})</span>
+          </div>
+          <div *ngIf="slot.patient" class="Availability-week-day-slot-details-patient mt-2">
+            <span class="pi pi-user"></span>
+            <span class="Availability-week-day-slot-details-patient-lastname ml-8">{{ slot.patient.lastname }}</span>
+          </div>
+        </div>
+        <div class="Availability-week-day-slot-practitioner">
+          <op-practitioner-icon [practitioner]="slot.practitioner"/>
+        </div>
+      </div>
+      <ng-container *ngIf="index >= 0
+            && index < slotsOfWeekDay.length - 1
+            && DateHelper.getDifferenceOfTime(slotsOfWeekDay[index].to, slotsOfWeekDay[index + 1].from) as diffMinutes"
+      >
+        <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
+              fromDate: slotsOfWeekDay[index].to,
+              toDate: slotsOfWeekDay[index + 1].from,
+              diffMinutes: diffMinutes
+            }"/>
+      </ng-container>
+      <ng-container *ngIf="index === slotsOfWeekDay.length - 1">
+        <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
+              fromDate: slotsOfWeekDay[index].to,
+              toDate: null,
+              diffMinutes: null
+            }"/>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template
+  #availabilityAddTemplate
+  let-fromDate="fromDate"
+  let-toDate="toDate"
+  let-diffMinutes="diffMinutes"
+>
+  <div class="Availability-week-day-slot creator p-button p-button-success" (click)="onAddAvailability(fromDate, toDate)">
+    <span *ngIf="!diffMinutes" class="pi pi-plus"></span>
+    <span *ngIf="diffMinutes" class="ml-6">{{ DateHelper.parseMinutes(diffMinutes) }}</span>
+  </div>
+</ng-template>

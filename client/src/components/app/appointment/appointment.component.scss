@@ -1,0 +1,27 @@
+.Appointment {
+  &-header {
+    display: flex;
+    align-items: inherit;
+    justify-content: space-between;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  &-form {
+    margin-top: 2rem;
+    &-input {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      @media (max-width: 1100px) {
+        flex-direction: column;
+        align-items: inherit;
+        gap: .5rem;
+      }
+    }
+  }
+
+  &-phone-digit {
+    max-width: 10px;
+  }
+}

@@ -1,0 +1,85 @@
+<p-dialog
+  [modal]="true"
+  [closable]="false"
+  [visible]="true"
+>
+  <p-header>
+    Modifier un créneau
+  </p-header>
+  <div class="Availability-edit-form">
+    <input type="hidden"/>
+    <p class="Availability-edit-form-input">
+      <label> De : </label>
+      <p-calendar
+        appendTo="body"
+        [(ngModel)]="editedSlot.from"
+        [timeOnly]="true"
+      />
+    </p>
+    <p class="Availability-edit-form-input">
+      <label> À : </label>
+      <p-calendar
+        appendTo="body"
+        [(ngModel)]="editedSlot.to"
+        [timeOnly]="true"
+        [showOnFocus]="false"
+      />
+    </p>
+    <p class="Availability-edit-form-input">
+      <label> Pour : </label>
+      <p-dropdown
+        appendTo="body"
+        [options]="Object.values(Practitioner)"
+        [(ngModel)]="editedSlot.practitioner"
+      />
+    </p>
+    <p-divider/>
+    <p class="Availability-edit-form-input mb-24" style="flex-direction: row">
+      <label> Patient : </label>
+      <p-inputSwitch [(ngModel)]="editedSlot.hasPatient" (onChange)="onHasPatientChanged()"/>
+    </p>
+    <ng-container *ngIf="editedSlot.hasPatient">
+      <p *ngIf="editedSlot.bookedAt" class="Availability-edit-form-input">
+        <label> Créneau pris le </label>
+        <p-calendar
+          appendTo="body"
+          [dateFormat]="DateFormat.DATE_PRIME"
+          [(ngModel)]="editedSlot.bookedAt"
+          [showTime]="true"
+          [disabled]="true"
+        />
+      </p>
+      <p class="Availability-edit-form-input">
+        <label> Nom </label>
+        <input type="text" pInputText [(ngModel)]="editedSlot.patient!.lastname"/>
+      </p>
+      <p class="Availability-edit-form-input">
+        <label> Prénom </label>
+        <input type="text" pInputText [(ngModel)]="editedSlot.patient!.firstname"/>
+      </p>
+      <p class="Availability-edit-form-input">
+        <label> Téléphone </label>
+        <p-inputOtp [length]="10" [integerOnly]="true" [(ngModel)]="editedSlot.patient!.phone"/>
+      </p>
+      <p class="Availability-edit-form-input">
+        <label> Type de séance : </label>
+        <p-dropdown appendTo="body" [options]="Object.values(PatientType)" [(ngModel)]="editedSlot.patient!.type"/>
+      </p>
+    </ng-container>
+  </div>
+  <p-footer>
+    <p-button (onClick)="cancelled.emit()">Annuler</p-button>
+    <p-button (onClick)="onRemoveSlot()" severity="danger" [loading]="isEditingSlot">Supprimer</p-button>
+    <p-button (onClick)="onEditSlot()" severity="warning" [loading]="isEditingSlot">Modifier</p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog [modal]="true" [visible]="isRemovingSlot">
+  <p-header>
+    Confirmer la suppression du créneau ?
+  </p-header>
+  <p-footer>
+    <p-button (onClick)="onCancelRemoveSlot()">Annuler</p-button>
+    <p-button (onClick)="onConfirmRemoveSlot()" severity="danger" [loading]="isEditingSlot">Supprimer</p-button>
+  </p-footer>
+</p-dialog>

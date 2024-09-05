@@ -1,0 +1,14 @@
+.Infos {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .pi {
+    margin-right: 1rem;
+  }
+
+  &-item {
+    display: flex;
+    align-items: center;
+  }
+}

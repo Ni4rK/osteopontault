@@ -1,0 +1,208 @@
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
+
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >-
+  osteopontault
+
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+Resources:
+  ######################################################
+  # Server NodeModules Layer
+  NodeModulesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: osteopontault-server-node_modules
+      Content:
+        S3Bucket: osteopontault-lambda
+        S3Key: nodejs.zip
+      CompatibleRuntimes:
+        - nodejs20.x
+
+  ######################################################
+  # Authentication Lambda Function
+  AuthenticationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: server/src/handlers/authentication.authenticationHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthenticationMemberTable
+      Layers:
+        - !Ref NodeModulesLayer
+      Environment:
+        Variables:
+          MODE: prod
+          DB_AUTHENTICATION_MEMBER_TABLE_NAME: !Ref AuthenticationMemberTable
+          DB_AVAILABILITY_SLOT_TABLE_NAME: !Ref AvailabilitySlotTable
+          AUTH_KEY: "H{B68b3hl-)ùk[sSL§i6e)o_"
+          AUTH_EXP_GUEST: 7200 #
+          AUTH_EXP_PRACTITIONER: 86400
+      Events:
+        getToken:
+          Type: Api
+          Properties:
+            Path: /authentication/token
+            Method: POST
+        addPwaSubscription:
+          Type: Api
+          Properties:
+            Path: /member/pwa_subscription
+            Method: PATCH
+
+  ######################################################
+  # Availability Lambda Function
+  AvailabilityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: server/src/handlers/availability.availabilityHandler
+      CodeUri: dist/
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthenticationMemberTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AvailabilitySlotTable
+      Layers:
+        - !Ref NodeModulesLayer
+      Environment:
+        Variables:
+          MODE: prod
+          DB_AUTHENTICATION_MEMBER_TABLE_NAME: !Ref AuthenticationMemberTable
+          DB_AVAILABILITY_SLOT_TABLE_NAME: !Ref AvailabilitySlotTable
+          VAPID_PRIVATE_KEY: "wbuQRci_xmVuuUraxkhoeYR14zLHOHv45HI_Ny4ksgU"
+          AUTH_KEY: "H{B68b3hl-)ùk[sSL§i6e)o_"
+          AUTH_EXP_GUEST: 7200
+          AUTH_EXP_PRACTITIONER: 86400
+      Events:
+        listSlots:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: GET
+        createSlots:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: POST
+        editSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: PATCH
+        bookSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot/book
+            Method: PATCH
+        deleteSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: DELETE
+
+  ######################################################
+  # Options Lambda Function
+  OptionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: server/src/handlers/options.optionsHandler
+      CodeUri: dist/
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Layers:
+        - !Ref NodeModulesLayer
+      Environment:
+        Variables:
+          MODE: prod
+      Events:
+        crudSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot
+            Method: OPTIONS
+        bookSlot:
+          Type: Api
+          Properties:
+            Path: /availability_slot/book
+            Method: OPTIONS
+        getToken:
+          Type: Api
+          Properties:
+            Path: /authentication/token
+            Method: OPTIONS
+        addPwaSubscription:
+          Type: Api
+          Properties:
+            Path: /member/pwa_subscription
+            Method: OPTIONS
+
+  ######################################################
+  # Scripts Lambda Function
+  ScriptsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/server/src/handlers/scripts.scriptsHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthenticationMemberTable
+      Layers:
+        - !Ref NodeModulesLayer
+      Environment:
+        Variables:
+          MODE: prod
+          DB_AUTHENTICATION_MEMBER_TABLE_NAME: !Ref AuthenticationMemberTable
+      Events:
+        migrateDatabase:
+          Type: Api
+          Properties:
+            Path: /script/database_migration
+            Method: GET
+
+  ######################################################
+  # Database Tables
+  AuthenticationMemberTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: username
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  AvailabilitySlotTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: uid
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2

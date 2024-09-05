@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../node_modules/rxjs/dist/esm5/internal/util/isFunction.js"],
+  "sourcesContent": ["export function isFunction(value) {\n  return typeof value === 'function';\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAO,SAAS,WAAW,OAAO;AAChC,SAAO,OAAO,UAAU;AAC1B;",
+  "names": []
+}

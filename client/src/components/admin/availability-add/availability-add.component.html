@@ -1,0 +1,46 @@
+<p-dialog
+  [modal]="true"
+  [closable]="false"
+  [visible]="true"
+>
+  <p-header>
+    Ajouter des créneaux
+  </p-header>
+  <div class="Availability-add-form">
+    <input type="hidden"/>
+    <p class="Availability-add-form-input">
+      <label> Quand ? </label>
+      <p-calendar
+        appendTo="body"
+        [dateFormat]="DateFormat.DATE_PRIME"
+        [(ngModel)]="newAvailability.date"
+        [showTime]="true"
+      />
+    </p>
+    <p-divider/>
+    <ng-container *ngIf="practitioner === Practitioner.ROSE">
+      <p class="Availability-add-form-input">
+        <label> Pour : </label>
+        <p-dropdown
+          appendTo="body"
+          [options]="Object.values(Practitioner)"
+          [(ngModel)]="newAvailability.practitioner"
+        />
+      </p>
+      <p-divider/>
+    </ng-container>
+    <p class="Availability-add-form-input">
+      <label> Créneaux de : </label>
+      <p-inputNumber [(ngModel)]="newAvailability.stepTime" suffix=" minutes"/>
+    </p>
+    <p-divider/>
+    <p class="Availability-add-form-input">
+      <label> Nombre de créneaux : </label>
+      <p-inputNumber [(ngModel)]="newAvailability.howMany"/>
+    </p>
+  </div>
+  <p-footer>
+    <p-button (onClick)="cancelAddingAvailability.emit()">Annuler</p-button>
+    <p-button (onClick)="onAddAvailability()" severity="warning" [loading]="isAddingAvailability">Ajouter</p-button>
+  </p-footer>
+</p-dialog>

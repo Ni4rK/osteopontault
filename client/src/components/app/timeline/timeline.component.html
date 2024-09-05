@@ -1,0 +1,52 @@
+<p-timeline
+  class="Timeline"
+  [value]="isLoading ? loaders : availabilities"
+  [style]="{
+    display: 'flex',
+    alignItems: 'center',
+  }"
+>
+  <ng-template pTemplate="marker">
+    <div class="Timeline-separator">
+      <op-hexagon [width]="20" color="#2196F3"/>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="opposite" let-availability>
+    <ng-container *ngIf="isLoading || availability === null">
+      <p-skeleton
+        [ngStyle]="{ display: 'flex', justifyContent: 'end' }"
+        width="141px"
+        height="42px"
+        borderRadius="1rem"
+      />
+    </ng-container>
+    <ng-container *ngIf="!isLoading && availability">
+      <p-button styleClass="unclickable" outlined>
+        {{ DateHelper.format(availability.date, DateFormat.FULL_DATE) }}
+      </p-button>
+    </ng-container>
+  </ng-template>
+  <ng-template pTemplate="content" let-availability>
+    <div class="Timeline-slots">
+      <ng-container *ngIf="isLoading || availability === null">
+        <p-skeleton *ngFor="let loadingSlot of loadingSlots" width="104px" height="46px" borderRadius="1rem"/>
+      </ng-container>
+      <ng-container *ngIf="!isLoading && availability">
+        <div
+          class="p-button p-button-large"
+          *ngFor="let slot of availability.slots"
+          [ngClass]="{
+          'p-button-primary': slot.practitioner === Practitioner.ROSE,
+          'p-button-help': slot.practitioner !== Practitioner.ROSE
+        }"
+          (click)="onSlotClick(slot)"
+        >
+          <div class="Timeline-slots-slot">
+            <span class="mr-12">{{ DateHelper.format(slot.from, DateFormat.TIME) }}</span>
+            <op-practitioner-icon [practitioner]="slot.practitioner"/>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+</p-timeline>
