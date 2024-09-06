@@ -3,6 +3,7 @@
 - Add to my Google calendar
 - Send a reminder SMS
 - Google referencing
+- Map Google for locating Rose
 - **[OK]** Build a PWA to notify practitioner whenever someone booked a slot
 - **[OK]** Assets versionning
 - **[OK]** Loading states

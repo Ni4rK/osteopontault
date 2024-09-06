@@ -7,10 +7,10 @@ NEW_VERSION=1.4
 #            CLIENT            #
 ################################
 
-read -rp "Deploy client? (Y/n) " deployClient
+cd client || exit
 
+read -rp "Deploy client? (Y/n) " deployClient
 if [ "$deployClient" != 'n' ]; then
-  cd client || exit
   yarn run build && \
   mv dist/browser/main.js dist/browser/main-$NEW_VERSION.js && \
   sed -i '' "s/src=\"main.js\"/src=\"main-$NEW_VERSION.js\"/"g dist/browser/index.html && \
@@ -26,9 +26,15 @@ if [ "$deployClient" != 'n' ]; then
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/polyfills-$NEW_VERSION.js" && \
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/styles-$NEW_VERSION.css"
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/index.html"
-  cd ..
 fi
 
+read -rp "Deploy PWA? (y/N) " deployPWA
+if [ "$deployPWA" == 'y' ]; then
+  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/manifest.json" && \
+  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/service-worker"
+fi
+
+cd ..
 
 
 ################################
