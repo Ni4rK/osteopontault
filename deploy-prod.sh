@@ -30,8 +30,12 @@ fi
 
 read -rp "Deploy PWA? (y/N) " deployPWA
 if [ "$deployPWA" == 'y' ]; then
+  aws s3 cp ./dist/browser/manifest.json s3://osteopontault.fr/manifest.json && \
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/manifest.json" && \
-  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/service-worker"
+  aws s3 cp ./dist/browser/images/icon.png s3://osteopontault.fr/images/icon.png && \
+  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/images/icon.png" && \
+  aws s3 cp ./dist/browser/manifest.json s3://osteopontault.fr/service-worker.js && \
+  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/service-worker.js"
 fi
 
 cd ..
