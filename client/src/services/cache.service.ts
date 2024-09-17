@@ -6,17 +6,23 @@ import {isString} from "@shared/helpers/common-types.guards";
 export class CacheService {
   LOCAL_STORAGE_CACHE_KEY = 'osteopontault-cache'
 
-  public cache: CacheType = {
+  private defaultCache: CacheType = {
     username: null,
     authenticationToken: null,
     role: null
   }
+
+  public cache: CacheType = { ...this.defaultCache }
 
   constructor() {
     const oldCache = localStorage.getItem(this.LOCAL_STORAGE_CACHE_KEY)
     if (isString(oldCache)) {
       this.cache = JSON.parse(oldCache)
     }
+  }
+
+  reset() {
+    this.cache = this.defaultCache
   }
 
   set(newCache: Partial<CacheType>) {

@@ -20,6 +20,7 @@ import {SlotPersisted} from "@shared/types/slot.interface";
 import {AppointmentComponent} from "./appointment/appointment.component";
 import {ToasterComponent} from "../_design-system/toaster/toaster.component";
 import ToasterService from "../../services/toaster.service";
+import {CacheService} from "../../services/cache.service";
 
 @Component({
   selector: 'op-app',
@@ -59,7 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private readonly toasterService: ToasterService,
     private readonly authenticationService: AuthenticationService,
-    private readonly availabilityService: AvailabilityService
+    private readonly availabilityService: AvailabilityService,
+    private readonly cacheService: CacheService
   ) {
   }
 
@@ -86,6 +88,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // this.loadAvailabilitiesInterval = window.setInterval(() => this.loadAvailabilities(), 10000)
+    this.cacheService.reset()
     this.loadAvailabilities()
   }
 
