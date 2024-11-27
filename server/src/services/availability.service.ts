@@ -8,6 +8,7 @@ import BadRequestException from "../exceptions/bad-request.exception";
 import type {NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 import EnvironmentHelper from "../utils/environment.helper";
 import NotificationPushService from "./notification-push.service";
+import {Practitioner} from "@shared/types/practitioner.enum";
 
 export default class AvailabilityService {
   static async find(uid: string): Promise<SlotPersisted> {
@@ -83,7 +84,7 @@ export default class AvailabilityService {
     }
   }
 
-  static async updateAvailabilitySlots(slots: SlotPersisted[]): Promise<void> {
+  static async updateAvailabilitySlots(slots: SlotPersisted[], sendNotification: boolean, byPractitioner: Practitioner): Promise<void> {
     await slots.forEach(async slot => {
       const bookedAt = slot.bookedAt ? slot.bookedAt : new Date().toISOString()
       await clientDatabase.update({
@@ -114,6 +115,20 @@ export default class AvailabilityService {
         }
       })
     })
+
+    if (sendNotification) {
+      for (const slot of slots) {
+        if (!slot.hasPatient) {
+          continue
+        }
+        const slotShortDateTime = `${DateHelper.format(slot.from, DateFormat.SHORT_DATE)} à ${DateHelper.format(slot.from, DateFormat.TIME)}`
+        const slotLongDateTime = DateHelper.format(slot.from, DateFormat.DATE_TIME)
+        await NotificationPushService.notify(slot.practitioner, {
+          title: `Créneau reservé (${slotShortDateTime}) via ${byPractitioner}`,
+          body: `${slot.patient!.lastname} ${slot.patient!.firstname} a pris le créneau du ${slotLongDateTime}`
+        })
+      }
+    }
   }
 
   static async bookAvailabilitySlots(slotUid: string, patient: Patient): Promise<void> {

@@ -27,7 +27,10 @@ export function isAvailabilityInsertHttpBody(value: unknown): value is Availabil
   return isArrayOf(value, isSlot)
 }
 
-export type AvailabilityUpdateHttpBody = SlotPersisted[]
+export type AvailabilityUpdateHttpBody = {
+  slots: SlotPersisted[],
+  sendNotification: boolean
+}
 
 export function isAvailabilityUpdateHttpBody(value: unknown): value is AvailabilityUpdateHttpBody {
   return isArrayOf(value, isSlotPersisted)

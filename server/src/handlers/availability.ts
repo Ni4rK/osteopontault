@@ -77,7 +77,7 @@ export const availabilityHandler = handlerWrapper(async (request: HttpRequest): 
     if (!isAvailabilityUpdateHttpBody(body)) {
       throw new BadRequestException()
     }
-    const slots: SlotPersisted[] = body.map(slot => ({
+    const slots: SlotPersisted[] = body.slots.map(slot => ({
       uid: slot.uid,
       from: new Date(slot.from).toISOString(),
       to: new Date(slot.to).toISOString(),
@@ -85,7 +85,7 @@ export const availabilityHandler = handlerWrapper(async (request: HttpRequest): 
       hasPatient: slot.hasPatient,
       patient: slot.patient
     }))
-    await AvailabilityService.updateAvailabilitySlots(slots)
+    await AvailabilityService.updateAvailabilitySlots(slots, body.sendNotification, request.user)
     return http200EmptyResponse
   }
 

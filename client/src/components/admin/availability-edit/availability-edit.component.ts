@@ -115,6 +115,7 @@ export class AvailabilityEditComponent implements OnChanges {
   onEditSlot() {
     const newSlotFrom = new Date(this.slot.from)
     const newSlotTo = new Date(this.slot.to)
+    const sendNotification = !this.slot.hasPatient && !!this.form.controls.hasPatient.value
     newSlotFrom.setHours(this.form.controls.from.value!.getHours())
     newSlotFrom.setMinutes(this.form.controls.from.value!.getMinutes())
     newSlotTo.setHours(this.form.controls.to.value!.getHours())
@@ -132,7 +133,7 @@ export class AvailabilityEditComponent implements OnChanges {
         phone: this.form.controls.patient.controls.phone.value!,
         type: this.form.controls.patient.controls.type.value!
       }
-    }).pipe(take(1)).subscribe(() => {
+    }, sendNotification).pipe(take(1)).subscribe(() => {
       this.toastService.sendToast({
         severity: "success",
         summary: "Créneau modifié"

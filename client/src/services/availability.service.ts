@@ -87,8 +87,11 @@ export default class AvailabilityService {
     )
   }
 
-  public edit(slot: SlotPersisted): Observable<void> {
-    return this.http.patch<void, AvailabilityUpdateHttpBody>(HttpPath.AVAILABILITY_UPDATE, [slot]).pipe(
+  public edit(slot: SlotPersisted, sendNotification: boolean): Observable<void> {
+    return this.http.patch<void, AvailabilityUpdateHttpBody>(HttpPath.AVAILABILITY_UPDATE, {
+      slots: [slot],
+      sendNotification: sendNotification
+    }).pipe(
       catchError(error => {
         console.error(error)
         this.toastService.sendToast({
