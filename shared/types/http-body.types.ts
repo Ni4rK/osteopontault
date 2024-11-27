@@ -1,6 +1,6 @@
 import {isRole, Role} from "./role.enum";
 import {AuthCredentials, isAuthCredentials} from "./auth-credentials.type";
-import {isArrayOf, isObject, isString} from "../helpers/common-types.guards";
+import {isArrayOf, isBoolean, isObject, isString} from "../helpers/common-types.guards";
 import {isSlot, isSlotPersisted, Slot, SlotPersisted} from "./slot.interface";
 import {isPatient, Patient} from "./patient.interface";
 import {isMemberPwaSubscription, MemberPwaSubscription} from "./member.interface";
@@ -33,7 +33,13 @@ export type AvailabilityUpdateHttpBody = {
 }
 
 export function isAvailabilityUpdateHttpBody(value: unknown): value is AvailabilityUpdateHttpBody {
-  return isArrayOf(value, isSlotPersisted)
+  return (
+    isObject(value) &&
+    'slots' in value &&
+    isArrayOf(value['slots'], isSlotPersisted) &&
+    'sendNotification' in value &&
+    isBoolean(value['sendNotification'])
+  )
 }
 
 export type AvailabilityBookHttpBody = {
