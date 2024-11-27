@@ -4,4 +4,4 @@ dist/
 .sam-cache/
 *.log
 .db
-./docker/
+docker/
