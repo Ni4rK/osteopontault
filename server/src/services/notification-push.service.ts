@@ -7,7 +7,7 @@ import {MemberPwaSubscription} from "@shared/types/member.interface";
 import clientDatabase from "../database/client.database";
 
 export default class NotificationPushService {
-  static MAX_NOTIFICATION = 3
+  static MAX_NOTIFICATION = 5
 
   static async notify(username: string, message: NotificationMessage) {
     const member = await MemberService.find(username)
