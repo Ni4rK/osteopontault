@@ -15,10 +15,12 @@ import {Patient, PatientType} from "@shared/types/patient.interface";
 import {InputOtpModule} from "primeng/inputotp";
 import AvailabilityService from "../../../services/availability.service";
 import {catchError, of, take} from "rxjs";
-import {PatientForm, createPatientForm} from "../../../forms/patient.form";
+import {createPatientForm, PatientForm} from "../../../forms/patient.form";
 import ToasterService from "../../../services/toaster.service";
 import {PractitionerIconComponent} from "../../_design-system/practitioner-icon/practitioner-icon.component";
 import {InputPhoneComponent} from "../../_design-system/input-phone/input-phone.component";
+import {Practitioner} from "@shared/types/practitioner.enum";
+import {MessagesModule} from "primeng/messages";
 
 @Component({
   selector: 'op-appointment',
@@ -37,7 +39,8 @@ import {InputPhoneComponent} from "../../_design-system/input-phone/input-phone.
     InputOtpModule,
     ReactiveFormsModule,
     PractitionerIconComponent,
-    InputPhoneComponent
+    InputPhoneComponent,
+    MessagesModule
   ],
   templateUrl: './appointment.component.html',
   styleUrl: './appointment.component.scss'
@@ -63,6 +66,23 @@ export class AppointmentComponent {
     private readonly availabilityService: AvailabilityService,
     private readonly toastService: ToasterService
   ) {
+  }
+
+  get isSlotForChildrenOnly(): boolean {
+    return (
+      this.slot.practitioner === Practitioner.ROSE &&
+      DateHelper.isWednesday(this.slot.from)
+    )
+  }
+
+  get patientTypeOptions(): PatientType[] {
+    if (this.isSlotForChildrenOnly) {
+      return [
+        PatientType.BABY,
+        PatientType.CHILD
+      ];
+    }
+    return Object.values(PatientType) as PatientType[]
   }
 
   get canBook(): boolean {

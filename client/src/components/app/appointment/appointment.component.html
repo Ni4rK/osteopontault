@@ -42,12 +42,21 @@
       <label> Type de séance : </label>
       <p-dropdown
         appendTo="body"
-        [options]="Object.values(PatientType)"
+        [options]="patientTypeOptions"
         [formControl]="form.controls.type"
       />
     </p>
   </form>
   <p-footer>
+    <p-messages
+      *ngIf="isSlotForChildrenOnly"
+      [value]="[{
+        'severity': 'warn',
+        'summary': 'Les créneaux du mercredi sont réservés aux bébés/enfants'
+      }]"
+      [enableService]="false"
+      [closable]="false"
+    />
     <p-button (onClick)="cancelAppointment.emit()">Annuler</p-button>
     <p-button
       severity="warning"

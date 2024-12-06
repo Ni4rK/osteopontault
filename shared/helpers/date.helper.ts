@@ -52,6 +52,14 @@ export default class DateHelper {
     return formatter.format(dateToFormat)
   }
 
+  static isWednesday(date: Date | string): boolean {
+    const dateToCheck: Date = isDate(date) ? date : new Date(date)
+    const day = new Intl.DateTimeFormat('en-EN', {
+      weekday: "long"
+    }).format(dateToCheck)
+    return day.toLowerCase() === 'wednesday'
+  }
+
   static getDifferenceOfTime(date1: Date | string, date2: Date | string): number {
     const d1: Date = isDate(date1) ? date1 : new Date(date1)
     const d2: Date = isDate(date2) ? date2 : new Date(date2)
