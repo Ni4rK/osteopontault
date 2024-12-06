@@ -7,6 +7,9 @@ if [ "$agreeVersion" == 'n' ]; then
   read -rp "Enter next version: " NEW_VERSION
 fi
 echo -n $NEW_VERSION > version
+if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+  git commit -am "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
+fi
 
 
 ################################
