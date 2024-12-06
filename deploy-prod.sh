@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-OLD_VERSION=1.3
-NEW_VERSION=1.4
+OLD_VERSION=$(cat version)
+NEW_VERSION=$(echo $OLD_VERSION | cut -d. -f1).$(($(echo $OLD_VERSION | cut -d. -f2) + 1))
+read -rp "Current version is [$OLD_VERSION], next version will be [$NEW_VERSION]. Agree? (Y/n)" agreeVersion
+if [ "$agreeVersion" == 'n' ]; then
+  read -rp "Enter next version: " NEW_VERSION
+fi
+echo -n $NEW_VERSION > version
+
 
 ################################
 #            CLIENT            #
