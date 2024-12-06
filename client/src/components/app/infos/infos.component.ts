@@ -1,6 +1,7 @@
 import {Component, EventEmitter, HostListener, Output} from "@angular/core";
 import {DialogModule} from "primeng/dialog";
 import {Button} from "primeng/button";
+import {ROSE_PHONE} from "../../../utils/constants";
 
 @Component({
   selector: 'op-infos',
@@ -13,8 +14,10 @@ import {Button} from "primeng/button";
   styleUrl: './infos.component.scss'
 })
 export class InfosComponent {
-  @Output() closeIt = new EventEmitter<void>();
+  @Output() closeIt = new EventEmitter<void>()
   @HostListener('document:keydown.escape', ['$event']) onKeydownHandler() {
     this.closeIt.emit()
   }
+
+  protected readonly ROSE_PHONE = ROSE_PHONE
 }

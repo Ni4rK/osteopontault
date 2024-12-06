@@ -21,6 +21,7 @@ import {AppointmentComponent} from "./appointment/appointment.component";
 import {ToasterComponent} from "../_design-system/toaster/toaster.component";
 import ToasterService from "../../services/toaster.service";
 import {CacheService} from "../../services/cache.service";
+import {ROSE_PHONE} from "../../utils/constants";
 
 @Component({
   selector: 'op-app',
@@ -90,6 +91,11 @@ export class AppComponent implements OnInit, OnDestroy {
     // this.loadAvailabilitiesInterval = window.setInterval(() => this.loadAvailabilities(), 10000)
     this.cacheService.reset()
     this.loadAvailabilities()
+    this.toasterService.sendToast({
+      severity: "success",
+      summary: `Pour toute demande urgente, n'hésitez pas à appeler le ${ROSE_PHONE}`,
+      sticky: true
+    })
   }
 
   ngOnDestroy() {

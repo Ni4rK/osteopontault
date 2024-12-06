@@ -4,11 +4,7 @@ import {Message, MessageService} from "primeng/api";
 @Injectable({ providedIn: 'root' })
 export default class ToasterService {
   callback: ((message: Message) => void) | null = null
-
-  constructor(
-    private readonly messageService: MessageService
-  ) {
-  }
+  pendingMessages: Message[] = []
 
   public setToastCallback(callback: (message: Message) => void) {
     this.callback = callback
@@ -17,6 +13,8 @@ export default class ToasterService {
   public sendToast(message: Message) {
     if (this.callback) {
       this.callback(message)
+    } else {
+      this.pendingMessages.push(message)
     }
   }
 }

@@ -57,7 +57,6 @@ export class AppointmentComponent {
   protected readonly DateHelper = DateHelper
   protected readonly DateFormat = DateFormat
   protected readonly Object = Object;
-  protected readonly PatientType = PatientType;
 
   isBookingAppointment = false
   form: PatientForm = createPatientForm()
