@@ -22,7 +22,7 @@ export class ToasterComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.toasterService.setToastCallback(this.sendToast)
+    this.toasterService.setToastCallback(this.sendToast.bind(this))
     if (this.toasterService.pendingMessages.length) {
       window.setTimeout(() => {
         this.toasterService.pendingMessages.forEach(message => {
