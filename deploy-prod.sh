@@ -1,18 +1,5 @@
 #!/usr/bin/env bash
 
-OLD_VERSION=$(cat version)
-NEW_VERSION=$(echo $OLD_VERSION | cut -d. -f1).$(($(echo $OLD_VERSION | cut -d. -f2) + 1))
-read -rp "Current version is [$OLD_VERSION], next version will be [$NEW_VERSION]. Agree? (Y/n)" agreeVersion
-if [ "$agreeVersion" == 'n' ]; then
-  read -rp "Enter next version: " NEW_VERSION
-fi
-echo -n $NEW_VERSION > version
-if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
-  git commit -am "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
-  git push
-fi
-
-
 ################################
 #            CLIENT            #
 ################################
@@ -20,7 +7,21 @@ fi
 cd client || exit
 
 read -rp "Deploy client? (Y/n) " deployClient
-if [ "$deployClient" != 'n' ]; then
+
+  if [ "$deployClient" != 'n' ]; then
+    OLD_VERSION=$(cat version)
+    NEW_VERSION=$(echo $OLD_VERSION | cut -d. -f1).$(($(echo $OLD_VERSION | cut -d. -f2) + 1))
+    read -rp "Current version is [$OLD_VERSION], next version will be [$NEW_VERSION]. Agree? (Y/n)" agreeVersion
+    if [ "$agreeVersion" == 'n' ]; then
+      read -rp "Enter next version: " NEW_VERSION
+  fi
+  echo -n $NEW_VERSION > version
+
+  if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+    git commit -am "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
+    git push
+  fi
+
   yarn run build && \
   mv dist/browser/main.js dist/browser/main-$NEW_VERSION.js && \
   sed -i '' "s/src=\"main.js\"/src=\"main-$NEW_VERSION.js\"/"g dist/browser/index.html && \
