@@ -7,16 +7,14 @@
 cd client || exit
 
 read -rp "Deploy client? (Y/n) " deployClient
-
-  if [ "$deployClient" != 'n' ]; then
-    OLD_VERSION=$(cat version)
-    NEW_VERSION=$(echo $OLD_VERSION | cut -d. -f1).$(($(echo $OLD_VERSION | cut -d. -f2) + 1))
-    read -rp "Current version is [$OLD_VERSION], next version will be [$NEW_VERSION]. Agree? (Y/n)" agreeVersion
-    if [ "$agreeVersion" == 'n' ]; then
-      read -rp "Enter next version: " NEW_VERSION
+if [ "$deployClient" != 'n' ]; then
+  OLD_VERSION=$(cat version)
+  NEW_VERSION=$(echo $OLD_VERSION | cut -d. -f1).$(($(echo $OLD_VERSION | cut -d. -f2) + 1))
+  read -rp "Current version is [$OLD_VERSION], next version will be [$NEW_VERSION]. Agree? (Y/n)" agreeVersion
+  if [ "$agreeVersion" == 'n' ]; then
+    read -rp "Enter next version: " NEW_VERSION
   fi
-  echo -n $NEW_VERSION > version
-
+  echo -n "$NEW_VERSION" > version
   if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
     git commit -am "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
     git push
