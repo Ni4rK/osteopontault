@@ -8,8 +8,10 @@ cd client || exit
 
 read -rp "Deploy client? (Y/n) " deployClient
 if [ "$deployClient" != 'n' ]; then
+
+  # version
   OLD_VERSION=$(cat version)
-  NEW_VERSION=$(echo $OLD_VERSION | cut -d. -f1).$(($(echo $OLD_VERSION | cut -d. -f2) + 1))
+  NEW_VERSION=$(echo "$OLD_VERSION" | cut -d. -f1).$(($(echo "$OLD_VERSION" | cut -d. -f2) + 1))
   read -rp "Current version is [$OLD_VERSION], next version will be [$NEW_VERSION]. Agree? (Y/n)" agreeVersion
   if [ "$agreeVersion" == 'n' ]; then
     read -rp "Enter next version: " NEW_VERSION
@@ -20,6 +22,7 @@ if [ "$deployClient" != 'n' ]; then
     git push
   fi
 
+  # build
   yarn run build && \
   mv dist/browser/main.js dist/browser/main-$NEW_VERSION.js && \
   sed -i '' "s/src=\"main.js\"/src=\"main-$NEW_VERSION.js\"/"g dist/browser/index.html && \
@@ -27,6 +30,8 @@ if [ "$deployClient" != 'n' ]; then
   sed -i '' "s/src=\"polyfills.js\"/src=\"polyfills-$NEW_VERSION.js\"/"g dist/browser/index.html && \
   mv dist/browser/styles.css dist/browser/styles-$NEW_VERSION.css && \
   sed -i '' "s/href=\"styles.css\"/href=\"styles-$NEW_VERSION.css\"/"g dist/browser/index.html && \
+
+  # deploy
   aws s3 sync ./dist/browser s3://osteopontault.fr/ && \
   aws s3 rm "s3://osteopontault.fr/main-$OLD_VERSION.js" && \
   aws s3 rm "s3://osteopontault.fr/polyfills-$OLD_VERSION.js" && \
@@ -37,6 +42,7 @@ if [ "$deployClient" != 'n' ]; then
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/index.html"
 fi
 
+# PWA files deploy
 read -rp "Deploy PWA? (y/N) " deployPWA
 if [ "$deployPWA" == 'y' ]; then
   aws s3 cp ./dist/browser/manifest.json s3://osteopontault.fr/manifest.json && \
