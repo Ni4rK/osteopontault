@@ -8,20 +8,24 @@ export default class DateHelper {
       return ''
     }
     const dateToFormat: Date = isDate(date) ? date : new Date(date)
-    let formatter = new Intl.DateTimeFormat('fr-FR')
+    let formatter = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: "Europe/Paris"
+    })
     switch (format) {
       case DateFormat.FULL_DATE:
         formatter = new Intl.DateTimeFormat('fr-FR', {
           month: "long",
           day: "2-digit",
-          weekday: "long"
+          weekday: "long",
+          timeZone: "Europe/Paris"
         })
         break
       case DateFormat.MEDIUM_DATE:
         formatter = new Intl.DateTimeFormat('fr-FR', {
           month: "short",
           day: "2-digit",
-          weekday: "short"
+          weekday: "short",
+          timeZone: "Europe/Paris"
         })
         break
       case DateFormat.DATE_TIME:
@@ -30,19 +34,22 @@ export default class DateHelper {
           day: "2-digit",
           weekday: "long",
           hour: "2-digit",
-          minute: "2-digit"
+          minute: "2-digit",
+          timeZone: "Europe/Paris"
         })
         break
       case DateFormat.SHORT_DATE:
         formatter = new Intl.DateTimeFormat('fr-FR', {
           day: "numeric",
-          weekday: "short"
+          weekday: "short",
+          timeZone: "Europe/Paris"
         })
         break
       case DateFormat.TIME:
         formatter = new Intl.DateTimeFormat('fr-FR', {
           hour: "2-digit",
-          minute: "2-digit"
+          minute: "2-digit",
+          timeZone: "Europe/Paris"
         })
         break
       case DateFormat.DATE_PRIME:
