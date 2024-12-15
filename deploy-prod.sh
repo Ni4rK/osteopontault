@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ "$(git status -s | wc -l)" -ne 0 ]; then
+  echo "Git state is dirty. Clean and commit to deploy in prod."
+  exit 1
+fi
+
 ################################
 #            CLIENT            #
 ################################
@@ -18,8 +23,8 @@ if [ "$deployClient" != 'n' ]; then
   fi
   echo -n "$NEW_VERSION" > version
   if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
-    git commit -am "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
-    git push
+    git add version
+    git commit -m "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
   fi
 
   # build
