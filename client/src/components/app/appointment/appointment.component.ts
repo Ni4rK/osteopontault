@@ -95,6 +95,9 @@ export class AppointmentComponent {
   }
 
   onFocusOutLastname() {
+    if (!this.form.controls.lastname.value?.length) {
+      return
+    }
     const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_LASTNAME_FILLED] = {
       lastname: this.form.controls.lastname.value!
     }
@@ -102,6 +105,9 @@ export class AppointmentComponent {
   }
 
   onFocusOutFirstname() {
+    if (!this.form.controls.firstname.value?.length) {
+      return
+    }
     const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED] = {
       firstname: this.form.controls.firstname.value!
     }
@@ -109,6 +115,9 @@ export class AppointmentComponent {
   }
 
   onFocusOutPhone() {
+    if (!this.form.controls.phone.value?.length) {
+      return
+    }
     const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_PHONE_FILLED] = {
       phone: this.form.controls.phone.value!
     }
