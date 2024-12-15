@@ -5,6 +5,7 @@ enum DateFormat {
   SHORT_DATE_API = 'short_date_api',  // ex: 29/07/2024
   DATE_TIME = 'date_time',            // ex: lundi 29 juillet à 14:00
   TIME = 'time',                      // ex: 14:00
+  TIME_SECONDS = 'time_seconds',      // ex: 14:00:05
   DATE_PRIME = 'dd/mm/yy',            // ex: 29/07/2024
 }
 

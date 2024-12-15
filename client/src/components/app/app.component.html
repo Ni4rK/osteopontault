@@ -1,8 +1,8 @@
 <div class="App">
   <op-header
     class="App-header"
-    (clickInfosMenuItem)="isInfosOpen = true"
-    (clickOsteopathyMenuItem)="isOsteopathyOpen = true"
+    (clickInfosMenuItem)="onOpenInfos()"
+    (clickOsteopathyMenuItem)="onOpenOsteopathy()"
   />
 
   <!--  <div class="App-filter">-->
@@ -17,7 +17,7 @@
       *ngIf="firstSlot"
       class="App-next-appointment"
       [firstSlot]="firstSlot"
-      (slotClicked)="onSlotClicked($event)"
+      (slotClicked)="onSlotClicked($event, true)"
     />
     <op-timeline
       class="App-timeline"
@@ -25,7 +25,7 @@
       [isLoading]="isLoadingAvailabilities"
       [availabilities]="filteredAvailabilities"
       (scroll)="onScroll()"
-      (slotClicked)="onSlotClicked($event)"
+      (slotClicked)="onSlotClicked($event, false)"
     />
   </div>
 
@@ -38,16 +38,16 @@
 
   <op-infos
     *ngIf="isInfosOpen"
-    (closeIt)="isInfosOpen = false"
+    (closeIt)="onCloseInfos()"
   />
   <op-osteopathy
     *ngIf="isOsteopathyOpen"
-    (closeIt)="isOsteopathyOpen = false"
+    (closeIt)="onCloseOsteopathy()"
   />
   <op-appointment
     *ngIf="slotForAppointment"
     [slot]="slotForAppointment"
-    (appointmentBooked)="onAppointmentBooked()"
+    (appointmentBooked)="onAppointmentBooked($event)"
     (cancelAppointment)="onCancelAppointment()"
   />
 

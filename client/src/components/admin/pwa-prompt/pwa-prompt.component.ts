@@ -39,7 +39,6 @@ export class PwaPromptComponent implements OnInit {
   }
 
   onInstalled () {
-    console.log("here")
     this.show = false
   }
 

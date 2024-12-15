@@ -16,6 +16,13 @@ export default class EnvironmentHelper {
     return DbTable.AVAILABILITY_SLOT
   }
 
+  static getAnalyticsTableName(): string {
+    if (isString(process.env.DB_ANALYTICS_TABLE_NAME) && process.env.DB_ANALYTICS_TABLE_NAME.length) {
+      return process.env.DB_ANALYTICS_TABLE_NAME
+    }
+    return DbTable.ANALYTICS
+  }
+
   static getDbEndpoint(): string | null {
     if (isString(process.env.DB_ENDPOINT) && process.env.DB_ENDPOINT.length) {
       return process.env.DB_ENDPOINT

@@ -94,9 +94,9 @@ export default function handlerWrapper(
         handleAuthentication(request)
       }
       const response = await handler(request)
-      return Promise.resolve(createAPIGatewayProxyResultFromResponse(response))
+      return createAPIGatewayProxyResultFromResponse(response)
     } catch (error) {
-      return Promise.resolve(createAPIGatewayProxyResultFromError(error))
+      return createAPIGatewayProxyResultFromError(error)
     }
   }
 }

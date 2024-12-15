@@ -9,7 +9,9 @@ export class CacheService {
   private defaultCache: CacheType = {
     username: null,
     authenticationToken: null,
-    role: null
+    role: null,
+    userId: null,
+    sessionId: null
   }
 
   public cache: CacheType = { ...this.defaultCache }
@@ -21,8 +23,12 @@ export class CacheService {
     }
   }
 
-  reset() {
-    this.cache = this.defaultCache
+  resetForAuthentication() {
+    this.set({
+      username: null,
+      authenticationToken: null,
+      role: null
+    })
   }
 
   set(newCache: Partial<CacheType>) {

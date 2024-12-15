@@ -47,6 +47,7 @@ export default class AuthenticationService {
         return decodedPayload.practitioner
       }
     } catch (error) {
+      console.log(">>>> !!! Authentication error !!! >>>>", error)
       if (error instanceof TokenExpiredError) {
         throw new GoneException()
       }

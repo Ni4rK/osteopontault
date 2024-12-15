@@ -56,46 +56,72 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
 
   // INIT DATABASE
   if (request.path === HttpPath.SCRIPT_INIT_DATABASE) {
-    const authenticationTableInput: CreateTableInput = {
-      TableName: DbTable.AUTHENTICATION_MEMBER,
-      "AttributeDefinitions": [
-        {
-          "AttributeName": "username",
-          "AttributeType": "S"
-        }
-      ],
-      "KeySchema": [
-        {
-          "AttributeName": "username",
-          "KeyType": "HASH"
-        }
-      ],
-      "ProvisionedThroughput": {
-        "ReadCapacityUnits": 2,
-        "WriteCapacityUnits": 2
-      },
+    if (!request.query["database"] || request.query["database"] === DbTable.AUTHENTICATION_MEMBER) {
+      const authenticationTableInput: CreateTableInput = {
+        TableName: DbTable.AUTHENTICATION_MEMBER,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "username",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "username",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        },
+      }
+      await clientDatabase.client.send(new CreateTableCommand(authenticationTableInput))
     }
-    const availabilityTableInput: CreateTableInput = {
-      TableName: DbTable.AVAILABILITY_SLOT,
-      "AttributeDefinitions": [
-        {
-          "AttributeName": "uid",
-          "AttributeType": "S"
-        }
-      ],
-      "KeySchema": [
-        {
-          "AttributeName": "uid",
-          "KeyType": "HASH"
-        }
-      ],
-      "ProvisionedThroughput": {
-        "ReadCapacityUnits": 2,
-        "WriteCapacityUnits": 2
-      },
+    if (!request.query["database"] || request.query["database"] === DbTable.AVAILABILITY_SLOT) {
+      const availabilityTableInput: CreateTableInput = {
+        TableName: DbTable.AVAILABILITY_SLOT,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "uid",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "uid",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        },
+      }
+      await clientDatabase.client.send(new CreateTableCommand(availabilityTableInput))
     }
-    await clientDatabase.client.send(new CreateTableCommand(authenticationTableInput))
-    await clientDatabase.client.send(new CreateTableCommand(availabilityTableInput))
+    if (!request.query["database"] || request.query["database"] === DbTable.ANALYTICS) {
+      const analyticsTableInput: CreateTableInput = {
+        TableName: DbTable.ANALYTICS,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "sessionId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "sessionId",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        },
+      }
+      await clientDatabase.client.send(new CreateTableCommand(analyticsTableInput))
+    }
     return http200EmptyResponse
   }
 

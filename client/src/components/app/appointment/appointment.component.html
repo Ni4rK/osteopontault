@@ -20,7 +20,9 @@
       <input
         type="text"
         pInputText
+        [autofocus]="false"
         [formControl]="form.controls.lastname"
+        (focusout)="onFocusOutLastname()"
       />
     </p>
     <p-divider/>
@@ -29,21 +31,28 @@
       <input
         type="text"
         pInputText
+        [autofocus]="false"
         [formControl]="form.controls.firstname"
+        (focusout)="onFocusOutFirstname()"
       />
     </p>
     <p-divider/>
     <p class="Appointment-form-input">
       <label> Téléphone * </label>
-      <op-input-phone [formControl]="form.controls.phone"/>
+      <op-input-phone
+        [formControl]="form.controls.phone"
+        (focusout)="onFocusOutPhone()"
+      />
     </p>
     <p-divider/>
     <p class="Appointment-form-input">
       <label> Type de séance : </label>
       <p-dropdown
         appendTo="body"
+        [autofocus]="false"
         [options]="patientTypeOptions"
         [formControl]="form.controls.type"
+        (onChange)="onChangedPatientType()"
       />
     </p>
   </form>

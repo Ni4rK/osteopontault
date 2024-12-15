@@ -5,6 +5,8 @@ enum HttpPath {
   AVAILABILITY_UPDATE = '/availability_slot',
   AVAILABILITY_BOOK = '/availability_slot/book',
   AVAILABILITY_DELETE = '/availability_slot',
+  ANALYTICS_GET = '/analytics',
+  ANALYTICS_POST = '/analytics',
   MEMBER_PWA_SUBSCRIPTION = '/member/pwa_subscription',
   SCRIPT_DATABASE_MIGRATION = '/script/database_migration',
 

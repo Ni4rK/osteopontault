@@ -4,12 +4,12 @@ import {isArrayOf, isBoolean, isObject, isString} from "../helpers/common-types.
 import {isSlot, isSlotPersisted, Slot, SlotPersisted} from "./slot.interface";
 import {isPatient, Patient} from "./patient.interface";
 import {isMemberPwaSubscription, MemberPwaSubscription} from "./member.interface";
+import {AnalyticsActionsForSession, isAnalyticsActionsForSession} from "./analytics.types";
 
 export type AuthTokenHttpBody = {
   role: Role
   credentials?: AuthCredentials
 }
-
 export function isAuthTokenHttpBody(value: unknown): value is AuthTokenHttpBody {
   if (!isObject(value) || !('role' in value) || !isRole(value['role'])) {
     return false
@@ -22,7 +22,6 @@ export function isAuthTokenHttpBody(value: unknown): value is AuthTokenHttpBody 
 }
 
 export type AvailabilityInsertHttpBody = Slot[]
-
 export function isAvailabilityInsertHttpBody(value: unknown): value is AvailabilityInsertHttpBody {
   return isArrayOf(value, isSlot)
 }
@@ -31,7 +30,6 @@ export type AvailabilityUpdateHttpBody = {
   slots: SlotPersisted[],
   sendNotification: boolean
 }
-
 export function isAvailabilityUpdateHttpBody(value: unknown): value is AvailabilityUpdateHttpBody {
   return (
     isObject(value) &&
@@ -46,7 +44,6 @@ export type AvailabilityBookHttpBody = {
   uid: string
   patient: Patient
 }
-
 export function isAvailabilityBookHttpBody(value: unknown): value is AvailabilityBookHttpBody {
   return (
     isObject(value) &&
@@ -58,7 +55,9 @@ export function isAvailabilityBookHttpBody(value: unknown): value is Availabilit
 }
 
 export type MemberPwaSubscriptionHttpBody = MemberPwaSubscription
-
 export function isMemberPwaSubscriptionHttpBody(value: unknown): value is MemberPwaSubscriptionHttpBody {
   return isMemberPwaSubscription(value)
 }
+
+export type AnalyticsPutHttpBody = AnalyticsActionsForSession
+export const isAnalyticsPutHttpBody = isAnalyticsActionsForSession

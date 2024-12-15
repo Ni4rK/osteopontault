@@ -97,6 +97,39 @@ Resources:
             Method: DELETE
 
   ######################################################
+  # Analytics Lambda Function
+  AnalyticsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/server/src/handlers/analytics.analyticsHandler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AnalyticsTable
+      Environment:
+        Variables:
+          MODE: dev
+          DB_ENDPOINT: http://host.docker.internal:8000
+          AUTH_KEY: "just_for_dev"
+          AUTH_EXP_GUEST: 7200
+          AUTH_EXP_PRACTITIONER: 86400
+      Events:
+        putActionsForSession:
+          Type: Api
+          Properties:
+            Path: /analytics
+            Method: POST
+        listActionsForSessions:
+          Type: Api
+          Properties:
+            Path: /analytics
+            Method: GET
+
+  ######################################################
   # Scripts Lambda Function
   ScriptsFunction:
     Type: AWS::Serverless::Function
@@ -167,6 +200,11 @@ Resources:
           Properties:
             Path: /member/pwa_subscription
             Method: OPTIONS
+        analytics:
+          Type: Api
+          Properties:
+            Path: /analytics
+            Method: OPTIONS
 
   ######################################################
   # Database Tables
@@ -184,6 +222,15 @@ Resources:
     Properties:
       PrimaryKey:
         Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  AnalyticsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: sessionId
         Type: String
       ProvisionedThroughput:
         ReadCapacityUnits: 1

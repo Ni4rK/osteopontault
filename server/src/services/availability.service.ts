@@ -32,7 +32,6 @@ export default class AvailabilityService {
   }
 
   static async getAvailabilities(from?: Date, to?: Date): Promise<Availability[]> {
-    const slotsByDate: { [date: string]: SlotPersisted[] } = {}
     const filterExpressions: string[] = []
     const expressionAttributeValues: Record<string, NativeAttributeValue> = {}
     if (from) {
@@ -43,13 +42,14 @@ export default class AvailabilityService {
       filterExpressions.push('toDate <= :toDate')
       expressionAttributeValues[':toDate'] = to.toISOString()
     }
-    const result = await clientDatabase.find({
+    const results = await clientDatabase.find({
       TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
       FilterExpression: filterExpressions.length ? filterExpressions.join(' AND ') : undefined,
       ExpressionAttributeValues: filterExpressions.length ? expressionAttributeValues : undefined
     })
 
-    ;(result?.Items ?? []).forEach(item => {
+    const slotsByDate: { [date: string]: SlotPersisted[] } = {}
+    ;(results?.Items ?? []).forEach(item => {
       const slot = mapDatabaseItemToSlotPersisted(item)
       const date = DateHelper.format(slot.from, DateFormat.SHORT_DATE_API)
       if (slotsByDate[date] === undefined) {
@@ -58,10 +58,10 @@ export default class AvailabilityService {
       slotsByDate[date].push(slot)
     })
 
-    return Promise.resolve(Object.keys(slotsByDate).map(date => ({
+    return Object.keys(slotsByDate).map(date => ({
       date: slotsByDate[date][0].from,
       slots: slotsByDate[date]
-    })))
+    }))
   }
 
   static async insertAvailabilitySlots(slots: (Slot)[]): Promise<void> {

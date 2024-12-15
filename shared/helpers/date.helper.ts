@@ -52,6 +52,14 @@ export default class DateHelper {
           timeZone: "Europe/Paris"
         })
         break
+      case DateFormat.TIME_SECONDS:
+        formatter = new Intl.DateTimeFormat('fr-FR', {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZone: "Europe/Paris"
+        })
+        break
       case DateFormat.DATE_PRIME:
       case DateFormat.SHORT_DATE_API:
       default:
@@ -67,7 +75,7 @@ export default class DateHelper {
     return day.toLowerCase() === 'wednesday'
   }
 
-  static getDifferenceOfTime(date1: Date | string, date2: Date | string): number {
+  static getDifferenceOfTimeInMinutes(date1: Date | string, date2: Date | string): number {
     const d1: Date = isDate(date1) ? date1 : new Date(date1)
     const d2: Date = isDate(date2) ? date2 : new Date(date2)
     d1.setSeconds(0)
@@ -75,6 +83,14 @@ export default class DateHelper {
     d2.setSeconds(0)
     d2.setMilliseconds(0)
     return (d2.getTime() - d1.getTime()) / (60 * 1000)
+  }
+
+  static getDifferenceOfTimeInSeconds(date1: Date | string, date2: Date | string): number {
+    const d1: Date = isDate(date1) ? date1 : new Date(date1)
+    const d2: Date = isDate(date2) ? date2 : new Date(date2)
+    d1.setMilliseconds(0)
+    d2.setMilliseconds(0)
+    return (d2.getTime() - d1.getTime()) / 1000
   }
 
   static getWeekFromDate(date: Date): Date[] {
@@ -107,6 +123,19 @@ export default class DateHelper {
     }
     if (parsedMinutes) {
       parts.push(`${parsedMinutes}min`)
+    }
+    return parts.join('')
+  }
+
+  static parseSeconds(seconds: number): string {
+    const parts: string[] = []
+    const parsedMinutes = Math.floor(seconds / 60)
+    const parsedSeconds = Math.floor(seconds % 60)
+    if (parsedMinutes) {
+      parts.push(`${parsedMinutes}min`)
+    }
+    if (parsedSeconds) {
+      parts.push(`${parsedSeconds}s`)
     }
     return parts.join('')
   }

@@ -32,7 +32,7 @@ export const authenticationHandler = handlerWrapper(async (request: HttpRequest)
       throw new BadRequestException()
     }
     await MemberService.addPwaSubscription(user, body)
-    return Promise.resolve(http200EmptyResponse)
+    return http200EmptyResponse
   }
 
   throw new BadRequestException()

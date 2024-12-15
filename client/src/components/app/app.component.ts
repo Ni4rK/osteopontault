@@ -12,7 +12,7 @@ import {NextAppointmentComponent} from "./next-appointment/next-appointment.comp
 import {DialogModule} from "primeng/dialog";
 import AuthenticationService from "../../services/authentication.service";
 import {Role} from "@shared/types/role.enum";
-import {catchError, switchMap, take} from "rxjs";
+import {catchError, take} from "rxjs";
 import AvailabilityService from "../../services/availability.service";
 import {InfosComponent} from "./infos/infos.component";
 import {OsteopathyComponent} from "./osteopathy/osteopathy.component";
@@ -22,6 +22,9 @@ import {ToasterComponent} from "../_design-system/toaster/toaster.component";
 import ToasterService from "../../services/toaster.service";
 import {CacheService} from "../../services/cache.service";
 import {ROSE_PHONE} from "../../utils/constants";
+import AnalyticsPulsar from "./analytics.pulsar";
+import {AnalyticsAction, AnalyticsActionDataTypes} from "@shared/types/analytics.types";
+import {Patient} from "@shared/types/patient.interface";
 
 @Component({
   selector: 'op-app',
@@ -62,7 +65,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly toasterService: ToasterService,
     private readonly authenticationService: AuthenticationService,
     private readonly availabilityService: AvailabilityService,
-    private readonly cacheService: CacheService
+    private readonly cacheService: CacheService,
+    private readonly analyticsPulsar: AnalyticsPulsar
   ) {
   }
 
@@ -88,9 +92,16 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // this.loadAvailabilitiesInterval = window.setInterval(() => this.loadAvailabilities(), 10000)
-    this.cacheService.reset()
-    this.loadAvailabilities()
+    this.cacheService.resetForAuthentication()
+    this.authenticationService.authenticate(Role.GUEST)
+      .pipe(take(1))
+      .subscribe(isAuthenticatedAsGuest => {
+        const isAuthenticatedAsPractitioner = this.authenticationService.isAuthenticated(Role.PRACTITIONER)
+        if (isAuthenticatedAsGuest && !isAuthenticatedAsPractitioner) {
+          this.analyticsPulsar.start()
+        }
+        this.loadAvailabilities()
+      })
     this.toasterService.sendToast({
       severity: "success",
       summary: `Pour toute demande urgente, n'hésitez pas à appeler le ${ROSE_PHONE}`,
@@ -104,10 +115,34 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  onOpenInfos() {
+    this.isInfosOpen = true
+    this.analyticsPulsar.action(AnalyticsAction.INFOS_OPENED)
+  }
+
+  onCloseInfos() {
+    this.isInfosOpen = false
+    this.analyticsPulsar.action(AnalyticsAction.INFOS_CLOSED)
+  }
+
+  onOpenOsteopathy() {
+    this.isOsteopathyOpen = true
+    this.analyticsPulsar.action(AnalyticsAction.OSTEOPATHY_OPENED)
+  }
+
+  onCloseOsteopathy() {
+    this.isOsteopathyOpen = false
+    this.analyticsPulsar.action(AnalyticsAction.OSTEOPATHY_CLOSED)
+  }
+
   onScroll() {
     const timeline = document.getElementById('timeline')
     if (timeline) {
+      const hasShownScrollTop = this.showScrollTop
       this.showScrollTop = timeline.scrollTop > 280
+      if (this.showScrollTop !== hasShownScrollTop) {
+        this.analyticsPulsar.action(AnalyticsAction.SLOTS_LIST_SCROLLED_A_LOT)
+      }
     }
   }
 
@@ -119,26 +154,39 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSlotClicked(slot: SlotPersisted) {
+  onSlotClicked(slot: SlotPersisted, firstOne: boolean) {
     if (!slot.patient) {
       this.slotForAppointment = slot
+
+      const analyticsAction = firstOne ? AnalyticsAction.SLOT_NEXT_CLICKED : AnalyticsAction.SLOT_SPECIFIC_CLICKED
+      const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.SLOT_SPECIFIC_CLICKED] = {
+        date: slot.from,
+      }
+      this.analyticsPulsar.action(analyticsAction, analyticsData)
     }
   }
 
-  onAppointmentBooked() {
+  onAppointmentBooked(data: { slot: SlotPersisted; patient: Patient }) {
     this.slotForAppointment = null
     this.loadAvailabilities()
+
+    const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_BOOKED] = {
+      date: data.slot.from,
+      patient: `${data.patient.firstname} ${data.patient.lastname}`,
+      success: true
+    }
+    this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_BOOKED, analyticsData)
   }
 
   onCancelAppointment() {
     this.slotForAppointment = null
+    this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_CANCELED)
   }
 
   loadAvailabilities() {
     if (!this.isLoadingAvailabilities) {
       this.isLoadingAvailabilities = true
-      this.authenticationService.authenticate(Role.GUEST).pipe(
-        switchMap(() => this.availabilityService.list(new Date())),
+      this.availabilityService.list(new Date()).pipe(
         take(1),
         catchError(() => {
           this.isLoadingAvailabilities = false

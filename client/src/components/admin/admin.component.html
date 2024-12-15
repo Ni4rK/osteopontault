@@ -8,13 +8,27 @@
     (loggedIn)="onLoggedIn()"
   />
 
-  <div *ngIf="isAuthenticatedAsPractitioner" class="Admin-container">
+  <div *ngIf="isAuthenticatedAsPractitioner && practitioner" class="Admin-container">
+    <p-button
+      (onClick)="onSwitchScreenShown()"
+      class="Admin-screenSwitcher"
+      severity="warning"
+    >
+      <span class="pi pi-bookmark-fill mr-6"></span>
+      {{ isShowingAvailabilities ? "Activité du site" : "Gestion des créneaux" }}
+    </p-button>
+
     <op-availability-list
-      *ngIf="practitioner"
+      *ngIf="isShowingAvailabilities"
       class="Admin-list"
-      #availabilityListComponent
       [practitioner]="practitioner"
     />
+
+    <op-sessions-list
+      *ngIf="!isShowingAvailabilities"
+      class="Admin-list"
+    />
+
     <op-pwa-prompt/>
     <op-logout/>
   </div>

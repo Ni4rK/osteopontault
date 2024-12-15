@@ -66,7 +66,7 @@
         <div class="Availability-week-day-slot-details">
           <div>
             <span class="pi pi-clock"></span>
-            <span class="ml-8">{{ DateHelper.format(slot.from, DateFormat.TIME) }} ({{ DateHelper.parseMinutes(DateHelper.getDifferenceOfTime(slot.from, slot.to)) }})</span>
+            <span class="ml-8">{{ DateHelper.format(slot.from, DateFormat.TIME) }} ({{ DateHelper.parseMinutes(DateHelper.getDifferenceOfTimeInMinutes(slot.from, slot.to)) }})</span>
           </div>
           <div *ngIf="slot.patient" class="Availability-week-day-slot-details-patient mt-2">
             <span class="pi pi-user"></span>
@@ -79,7 +79,7 @@
       </div>
       <ng-container *ngIf="index >= 0
             && index < slotsOfWeekDay.length - 1
-            && DateHelper.getDifferenceOfTime(slotsOfWeekDay[index].to, slotsOfWeekDay[index + 1].from) as diffMinutes"
+            && DateHelper.getDifferenceOfTimeInMinutes(slotsOfWeekDay[index].to, slotsOfWeekDay[index + 1].from) as diffMinutes"
       >
         <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
               fromDate: slotsOfWeekDay[index].to,

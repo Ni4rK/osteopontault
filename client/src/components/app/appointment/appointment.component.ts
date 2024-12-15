@@ -21,6 +21,8 @@ import {PractitionerIconComponent} from "../../_design-system/practitioner-icon/
 import {InputPhoneComponent} from "../../_design-system/input-phone/input-phone.component";
 import {Practitioner} from "@shared/types/practitioner.enum";
 import {MessagesModule} from "primeng/messages";
+import AnalyticsPulsar from "../analytics.pulsar";
+import {AnalyticsAction, AnalyticsActionDataTypes} from "@shared/types/analytics.types";
 
 @Component({
   selector: 'op-appointment',
@@ -47,8 +49,11 @@ import {MessagesModule} from "primeng/messages";
 })
 export class AppointmentComponent {
   @Input({ required: true }) slot!: SlotPersisted
-  @Output() appointmentBooked = new EventEmitter<void>()
   @Output() cancelAppointment = new EventEmitter<void>()
+  @Output() appointmentBooked = new EventEmitter<{
+    slot: SlotPersisted,
+    patient: Patient
+  }>()
 
   @HostListener('document:keydown.escape', ['$event']) onKeydownHandler() {
     this.cancelAppointment.emit()
@@ -63,7 +68,8 @@ export class AppointmentComponent {
 
   constructor(
     private readonly availabilityService: AvailabilityService,
-    private readonly toastService: ToasterService
+    private readonly toastService: ToasterService,
+    private readonly analyticsPulsar: AnalyticsPulsar
   ) {
   }
 
@@ -88,6 +94,34 @@ export class AppointmentComponent {
     return this.form.valid
   }
 
+  onFocusOutLastname() {
+    const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_LASTNAME_FILLED] = {
+      lastname: this.form.controls.lastname.value!
+    }
+    this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_LASTNAME_FILLED, analyticsData)
+  }
+
+  onFocusOutFirstname() {
+    const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED] = {
+      firstname: this.form.controls.firstname.value!
+    }
+    this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED, analyticsData)
+  }
+
+  onFocusOutPhone() {
+    const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_PHONE_FILLED] = {
+      phone: this.form.controls.phone.value!
+    }
+    this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_PHONE_FILLED, analyticsData)
+  }
+
+  onChangedPatientType() {
+    const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_PATIENT_TYPE_CHANGED] = {
+      patientType: this.form.controls.type.value!
+    }
+    this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_PATIENT_TYPE_CHANGED, analyticsData)
+  }
+
   onBookAppointment() {
     if (!this.isBookingAppointment && this.form.valid) {
       const patient: Patient = {
@@ -101,6 +135,13 @@ export class AppointmentComponent {
         take(1),
         catchError(() => {
           this.isBookingAppointment = false
+
+          const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_BOOKED] = {
+            date: this.slot.from,
+            patient: `${patient.firstname} ${patient.lastname} (${patient.phone})`,
+            success: false
+          }
+          this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_BOOKED, analyticsData)
           return of()
         })
       ).subscribe(() => {
@@ -109,7 +150,10 @@ export class AppointmentComponent {
           summary: "Créneau réservé !"
         })
         this.isBookingAppointment = false
-        this.appointmentBooked.emit()
+        this.appointmentBooked.emit({
+          slot: this.slot,
+          patient: patient
+        })
       })
     }
   }
