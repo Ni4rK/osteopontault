@@ -142,6 +142,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.showScrollTop = timeline.scrollTop > 280
       if (this.showScrollTop !== hasShownScrollTop) {
         this.analyticsPulsar.action(AnalyticsAction.SLOTS_LIST_SCROLLED_A_LOT)
+      } else {
+        this.analyticsPulsar.action(AnalyticsAction.SLOTS_LIST_SCROLLED_A_BIT)
       }
     }
   }

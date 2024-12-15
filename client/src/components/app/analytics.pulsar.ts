@@ -17,6 +17,11 @@ export default class AnalyticsPulsar {
     AnalyticsAction.APPOINTMENT_BOOKED, // the user may leave the app, record the action now!
   ]
 
+  // ignored actions avoid inactivity but won't be pushed to analytics
+  IGNORED_ACTIONS = [
+    AnalyticsAction.SLOTS_LIST_SCROLLED_A_BIT,
+  ]
+
   started = false
   paused = false
   timeoutId: number | null = null
@@ -47,11 +52,9 @@ export default class AnalyticsPulsar {
   }
 
   public action<T extends object>(action: AnalyticsAction, data: T | null = null) {
-    console.log(`New action! (${action})`)
     const now = new Date()
     let shouldPulse = this.IMPORTANT_ACTIONS.includes(action)
 
-    console.log(`Started? ${this.started}, Paused? ${this.paused}`)
     if (!this.started || this.paused) {
       // user went back after inactivity:
       //  - if just a pause, let's resume (keep the session) + force the regular pule to start again
@@ -111,9 +114,11 @@ export default class AnalyticsPulsar {
 
     if (this.actions.length) {
       // there is actions already done by user (and recorded)
-      actionsForSessionToSend.actions.push(...this.actions)
+      const nonIgnoredActions = this.actions
+        .filter((actionData) => !this.IGNORED_ACTIONS.includes(actionData.action))
+      actionsForSessionToSend.actions.push(...nonIgnoredActions)
       actionsForSessionToSend.sessionStartDate = actionsForSessionToSend.actions[0].date
-      actionsForSessionToSend.sessionEndDate = this.actions[this.actions.length - 1].date
+      actionsForSessionToSend.sessionEndDate = nonIgnoredActions[nonIgnoredActions.length - 1].date
       this.actions = []
     } else {
       // no action recorded => let's consider the user is reading
@@ -123,8 +128,11 @@ export default class AnalyticsPulsar {
         data: null
       })
     }
+
     // send the actions recorded
-    this.analyticsService.put(actionsForSessionToSend).pipe(take(1)).subscribe()
+    if (actionsForSessionToSend.actions.length > 0) {
+      this.analyticsService.put(actionsForSessionToSend).pipe(take(1)).subscribe()
+    }
 
     // handle inactivity + next pulse
     if (this.timeoutId) {
