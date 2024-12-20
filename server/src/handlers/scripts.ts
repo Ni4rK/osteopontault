@@ -126,6 +126,9 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
   }
 
   throw new BadRequestException()
+}, {
+  withAuthentication: false,
+  noCacheForBrowsers: false
 })
 
 async function migrationFeaturePwaSubscriptions() {

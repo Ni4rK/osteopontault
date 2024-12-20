@@ -40,4 +40,7 @@ export const analyticsHandler = handlerWrapper(async (request: HttpRequest): Pro
   }
 
   throw new BadRequestException()
-}, true)
+}, {
+  withAuthentication: true,
+  noCacheForBrowsers: true
+})

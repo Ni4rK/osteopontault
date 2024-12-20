@@ -36,4 +36,7 @@ export const authenticationHandler = handlerWrapper(async (request: HttpRequest)
   }
 
   throw new BadRequestException()
-}, true)
+}, {
+  withAuthentication: true,
+  noCacheForBrowsers: true
+})

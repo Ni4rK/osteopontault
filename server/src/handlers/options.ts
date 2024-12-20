@@ -5,4 +5,7 @@ import {http200EmptyResponse} from "@shared/helpers/common.http-responses";
 
 export const optionsHandler = handlerWrapper(async (request: HttpRequest): Promise<HttpResponse> => {
   return http200EmptyResponse
+}, {
+  withAuthentication: false,
+  noCacheForBrowsers: false
 })

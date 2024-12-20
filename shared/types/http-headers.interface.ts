@@ -3,5 +3,5 @@ export interface HttpRequestHeaders {
 }
 
 export interface HttpResponseHeaders {
-  [name: string]: string | number | boolean
+  [name: string]: string | number | boolean | undefined
 }
