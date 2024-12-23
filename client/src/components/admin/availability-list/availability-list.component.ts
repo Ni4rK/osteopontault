@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
 import {catchError, take} from "rxjs";
 import {CalendarModule} from "primeng/calendar";
 import {NgClass, NgForOf, NgIf, NgStyle, NgTemplateOutlet} from "@angular/common";
@@ -15,6 +15,7 @@ import {HexagonComponent} from "../../_design-system/hexagon/hexagon.component";
 import {AvailabilityAddComponent} from "../availability-add/availability-add.component";
 import {PractitionerIconComponent} from "../../_design-system/practitioner-icon/practitioner-icon.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {DEFAULT_SLOT_DURATION} from "../../../utils/constants";
 
 @Component({
   selector: 'op-availability-list',
@@ -42,10 +43,13 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 })
 export class AvailabilityListComponent implements OnInit {
   @Input({ required: true }) practitioner!: Practitioner
+  @ViewChild("gridDesktopComponent") gridDesktopComponent!: ElementRef
+  @ViewChild("gridMobileComponent") gridMobileComponent!: ElementRef
 
   protected readonly DateFormat = DateFormat;
   protected readonly DateHelper = DateHelper;
   protected readonly Practitioner = Practitioner;
+  protected readonly DEFAULT_SLOT_DURATION = DEFAULT_SLOT_DURATION;
 
   baseDateForSearch = new Date()
   availabilities: Availability[] = []
@@ -57,6 +61,14 @@ export class AvailabilityListComponent implements OnInit {
   constructor(
     private readonly availabilityService: AvailabilityService
   ) {
+  }
+
+  get isMobile(): boolean {
+    return document.body.clientWidth < 800
+  }
+
+  get hours(): number[] {
+    return  new Array<number>(24).fill(0).map((h, index) => index)
   }
 
   get week(): Date[] {
@@ -120,11 +132,13 @@ export class AvailabilityListComponent implements OnInit {
     newDate.setDate(newDate.getDate() - 7)
     this.baseDateForSearch = newDate
     this.loadAvailabilities()
+    this.focusGrid()
   }
 
   onCurrentWeek() {
     this.baseDateForSearch = new Date()
     this.loadAvailabilities()
+    this.focusGrid()
   }
 
   onNextWeek() {
@@ -132,6 +146,7 @@ export class AvailabilityListComponent implements OnInit {
     newDate.setDate(newDate.getDate() + 7)
     this.baseDateForSearch = newDate
     this.loadAvailabilities()
+    this.focusGrid()
   }
 
   loadAvailabilities() {
@@ -155,6 +170,7 @@ export class AvailabilityListComponent implements OnInit {
       .subscribe((availabilities) => {
         this.isLoadingAvailabilities = false
         this.availabilities = availabilities
+        this.scrollToMidday()
       })
   }
 
@@ -162,12 +178,84 @@ export class AvailabilityListComponent implements OnInit {
     return this.availabilitiesPerWeekDay[dayOfWeek.getDay()]
   }
 
-  getDefaultSlotDate(dayOfWeek: Date): Date {
+  getDefaultSlotDate(dayOfWeek: Date): string {
     const date = new Date(dayOfWeek)
-    date.setHours(12)
-    date.setMinutes(0)
-    date.setSeconds(0)
-    date.setMilliseconds(0)
-    return date
+    date.setHours(14, 0, 0, 0)
+    return date.toISOString()
+  }
+
+  getCreationSlotsDataFor(
+    base: Date,
+    from: string | null,
+    to: string | null
+  ): Array<{from: string, to: string, diff: number }> {
+    const start: Date = from ? new Date(from) : new Date(base)
+    const end = to ? new Date(to) : new Date(base)
+    const creationSlotsData: Array<{
+      from: string
+      to: string
+      diff: number
+    }> = []
+
+    if (!from) {
+      start.setHours(8, 0, 0, 0)
+    }
+    if (!to) {
+      end.setHours(23, 0, 0, 0)
+    }
+
+    if (!to) {
+      for (let time = start.getTime(); time < end.getTime(); time += DEFAULT_SLOT_DURATION * 60 * 1000) {
+        const creationFromTime = time
+        const creationToTime = Math.min(
+          time + DEFAULT_SLOT_DURATION * 60 * 1000,
+          end.getTime()
+        )
+        creationSlotsData.push({
+          from: new Date(creationFromTime).toISOString(),
+          to: new Date(creationToTime).toISOString(),
+          diff: Math.floor((creationToTime - creationFromTime) / (60 * 1000))
+        })
+      }
+      return creationSlotsData
+    }
+
+    for (let time = end.getTime(); time > start.getTime(); time -= DEFAULT_SLOT_DURATION * 60 * 1000) {
+      const creationToTime = time
+      const creationFromTime = Math.max(
+        time - DEFAULT_SLOT_DURATION * 60 * 1000,
+        start.getTime()
+      )
+      creationSlotsData.push({
+        from: new Date(creationFromTime).toISOString(),
+        to: new Date(creationToTime).toISOString(),
+        diff: Math.floor((creationToTime - creationFromTime) / (60 * 1000))
+      })
+    }
+    return creationSlotsData
+  }
+
+  focusGrid() {
+    if (this.isMobile) {
+      this.gridMobileComponent.nativeElement.focus()
+    } else {
+      this.gridDesktopComponent.nativeElement.focus()
+    }
+  }
+
+  scrollToMidday() {
+    if (!this.isMobile) {
+      this.gridDesktopComponent.nativeElement.parentElement.scrollTo(0, 60 * 11)
+    }
+  }
+
+  getCssClassesForSlot(from: string, to: string): string {
+    const startInMinutes = DateHelper.getTimeInMinutes(from)
+    const durationInMinutes = DateHelper.getDifferenceOfTimeInMinutes(from, to)
+    return `AvailabilityList-slot-top-${startInMinutes} AvailabilityList-slot-height-${durationInMinutes}`
+  }
+
+  getCssClassesForEmptyDay() {
+    return `AvailabilityList-slot-top-0 AvailabilityList-slot-height-${24 * 60}`
   }
 }

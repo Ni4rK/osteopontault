@@ -75,6 +75,11 @@ export default class DateHelper {
     return day.toLowerCase() === 'wednesday'
   }
 
+  static getTimeInMinutes(date: Date | string): number {
+    const d: Date = isDate(date) ? date : new Date(date)
+    return d.getHours() * 60 + d.getMinutes()
+  }
+
   static getDifferenceOfTimeInMinutes(date1: Date | string, date2: Date | string): number {
     const d1: Date = isDate(date1) ? date1 : new Date(date1)
     const d2: Date = isDate(date2) ? date2 : new Date(date2)

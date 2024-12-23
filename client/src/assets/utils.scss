@@ -1,27 +1,35 @@
-.mt-2 {
-  margin-top: 2px;
+@for $i from 0 through 50 {
+  .ma-#{$i} {
+    margin: #{$i}px;
+  }
+  .mt-#{$i} {
+    margin-top: #{$i}px;
+  }
+  .mb-#{$i} {
+    margin-bottom: #{$i}px;
+  }
+  .ml-#{$i} {
+    margin-left: #{$i}px;
+  }
+  .mr-#{$i} {
+    margin-right: #{$i}px;
+  }
 }
 
-.mb-24 {
-  margin-bottom: 24px;
-}
-
-.ml-6 {
-  margin-left: 6px;
-}
-
-.ml-8 {
-  margin-left: 8px;
-}
-
-.ml-12 {
-  margin-left: 12px;
-}
-
-.mr-6 {
-  margin-right: 6px;
-}
-
-.mr-12 {
-  margin-right: 12px;
+@for $i from 0 through 50 {
+  .pa-#{$i} {
+    margin: #{$i}px;
+  }
+  .pt-#{$i} {
+    margin-top: #{$i}px;
+  }
+  .pb-#{$i} {
+    margin-bottom: #{$i}px;
+  }
+  .pl-#{$i} {
+    margin-left: #{$i}px;
+  }
+  .pr-#{$i} {
+    margin-right: #{$i}px;
+  }
 }

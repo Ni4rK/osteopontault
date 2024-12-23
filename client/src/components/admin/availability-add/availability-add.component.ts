@@ -14,6 +14,8 @@ import AvailabilityService from "../../../services/availability.service";
 import {NgIf} from "@angular/common";
 import ToasterService from "../../../services/toaster.service";
 import {isDate} from "@shared/helpers/common-types.guards";
+import DateHelper from "@shared/helpers/date.helper";
+import {DEFAULT_SLOT_DURATION} from "../../../utils/constants";
 
 @Component({
   selector: 'op-availability-add',
@@ -48,13 +50,11 @@ export class AvailabilityAddComponent implements OnChanges {
   protected readonly DateFormat = DateFormat;
   protected readonly Object = Object
 
-  DEFAULT_STEP_TIME = 45
-
   isAddingAvailability = false
   newAvailability = {
     date: new Date(),
     practitioner: Practitioner.ROSE as Practitioner,
-    stepTime: this.DEFAULT_STEP_TIME, // in minutes
+    stepTime: DEFAULT_SLOT_DURATION, // in minutes
     howMany: 5, // slots counter
   }
 
@@ -70,14 +70,18 @@ export class AvailabilityAddComponent implements OnChanges {
       const to = changes['baseDates'].currentValue[1]
       if (!isDate(from) && isDate(to)) {
         const toDate = new Date(to)
-        toDate.setTime(to.getTime() - this.DEFAULT_STEP_TIME * 60 * 1000)
+        toDate.setTime(to.getTime() - DEFAULT_SLOT_DURATION * 60 * 1000)
         this.newAvailability.howMany = 1
         this.newAvailability.date = toDate
       } else if (isDate(from) && !isDate(to)) {
         this.newAvailability.howMany = 5
         this.newAvailability.date = from
       } else if (isDate(from) && isDate(to)) {
-        this.newAvailability.howMany = Math.floor((to.getTime() - from.getTime()) / (this.DEFAULT_STEP_TIME * 60 * 1000))
+        this.newAvailability.howMany = Math.floor((to.getTime() - from.getTime()) / (DEFAULT_SLOT_DURATION * 60 * 1000))
+        if (this.newAvailability.howMany < 1) {
+          this.newAvailability.howMany = 1
+          this.newAvailability.stepTime = DateHelper.getDifferenceOfTimeInMinutes(from, to)
+        }
         this.newAvailability.date = from
       } else if (!isDate(from) && !isDate(to)) {
         const date = new Date()

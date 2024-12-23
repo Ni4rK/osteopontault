@@ -1,25 +1,101 @@
-<div class="Availability-filter">
-  <p-button icon="pi pi-arrow-left" (onClick)="onPreviousWeek()"/>
+<div class="AvailabilityList-filter">
+  <p-button (onClick)="onPreviousWeek()" icon="pi pi-arrow-left"/>
   <p-button (onClick)="onCurrentWeek()">
     Semaine du {{ DateHelper.format(week[0], DateFormat.SHORT_DATE_API) }}
   </p-button>
-  <p-button icon="pi pi-arrow-right" (onClick)="onNextWeek()"/>
+  <p-button (onClick)="onNextWeek()" icon="pi pi-arrow-right"/>
 </div>
 
-<div class="Availability-week">
-  <ng-container *ngIf="isLoadingAvailabilities">
-    <p-progressSpinner [ngStyle]="{ margin: 'auto' }"/>
-  </ng-container>
-  <ng-container *ngIf="!isLoadingAvailabilities">
-    <div *ngFor="let dayOfWeek of week" class="Availability-week-day">
-      <div class="Availability-week-day-title">
+
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- ////////////////////////////////////////// FOR MOBILE VIEW  //////////////////////////////////////// -->
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<div
+  *ngIf="isMobile"
+  class="AvailabilityListMobile-container"
+>
+  <div class="AvailabilityListMobile-calendar">
+    <div class="AvailabilityListMobile-calendar-days">
+      <div *ngFor="let dayOfWeek of week" class="AvailabilityListMobile-calendar-days-item">
         {{ DateHelper.format(dayOfWeek, DateFormat.MEDIUM_DATE) }}
       </div>
-      <div class="Availability-week-day-slots">
-        <ng-container *ngTemplateOutlet="availabilityForWeekDayTemplate; context: { dayOfWeek: dayOfWeek }"/>
+      <div class="AvailabilityListMobile-calendar-days-scrollbar"></div>
+    </div>
+
+    <div class="AvailabilityListMobile-calendar-week">
+      <div class="AvailabilityListMobile-calendar-week-container" #gridMobileComponent tabindex="0">
+        <div *ngFor="let dayOfWeek of week" class="AvailabilityListMobile-calendar-week-day">
+          <div class="AvailabilityListMobile-calendar-week-day-hours">
+            <div *ngFor="let hour of hours" class="AvailabilityListMobile-calendar-week-day-hours-item">
+              {{ hour }} h
+            </div>
+          </div>
+          <div class="AvailabilityListMobile-calendar-week-day-grid">
+            <div *ngFor="let hour of hours" class="AvailabilityListMobile-calendar-week-day-grid-hour"></div>
+            <ng-container *ngIf="getSlotsFromDay(dayOfWeek) as slotsForDay">
+              <ng-container *ngTemplateOutlet="slotsForDayTemplate; context: {
+              dayOfWeek: dayOfWeek,
+              slotsForDay: slotsForDay,
+              firstsCreationSlotsData: getCreationSlotsDataFor(
+                dayOfWeek,
+                null,
+                slotsForDay.length ? slotsForDay[0].from : null
+              ),
+              lastsCreationSlotsData: slotsForDay.length
+                ? getCreationSlotsDataFor(dayOfWeek, slotsForDay[slotsForDay.length - 1].to, null)
+                : []
+            }"/>
+            </ng-container>
+          </div>
+        </div>
       </div>
     </div>
-  </ng-container>
+  </div>
+</div>
+
+
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- ////////////////////////////////////////// FOR DESKTOP VIEW  //////////////////////////////////////// -->
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<div
+  *ngIf="!isMobile"
+  class="AvailabilityListDesktop-calendar"
+>
+  <div class="AvailabilityListDesktop-calendar-days">
+    <div class="AvailabilityListDesktop-calendar-days-hours"><!-- Top of column --></div>
+    <div *ngFor="let dayOfWeek of week" class="AvailabilityListDesktop-calendar-days-item">
+      {{ DateHelper.format(dayOfWeek, DateFormat.MEDIUM_DATE) }}
+    </div>
+    <div class="AvailabilityListDesktop-calendar-days-scrollbar"></div>
+  </div>
+
+  <div class="AvailabilityListDesktop-calendar-week">
+    <div class="AvailabilityListDesktop-calendar-week-hours">
+      <div *ngFor="let hour of hours" class="AvailabilityListDesktop-calendar-week-hours-item">
+        {{ hour }} h
+      </div>
+    </div>
+
+    <div class="AvailabilityListDesktop-calendar-week-grid" #gridDesktopComponent tabindex="0">
+      <div *ngFor="let dayOfWeek of week" class="AvailabilityListDesktop-calendar-week-grid-day">
+        <div *ngFor="let hour of hours" class="AvailabilityListDesktop-calendar-week-grid-day-hour"></div>
+        <ng-container *ngIf="getSlotsFromDay(dayOfWeek) as slotsForDay">
+          <ng-container *ngTemplateOutlet="slotsForDayTemplate; context: {
+            dayOfWeek: dayOfWeek,
+            slotsForDay: slotsForDay,
+            firstsCreationSlotsData: getCreationSlotsDataFor(
+              dayOfWeek,
+              null,
+              slotsForDay.length ? slotsForDay[0].from : null
+            ),
+            lastsCreationSlotsData: slotsForDay.length
+              ? getCreationSlotsDataFor(dayOfWeek, slotsForDay[slotsForDay.length - 1].to, null)
+              : []
+          }"/>
+        </ng-container>
+      </div>
+    </div>
+  </div>
 </div>
 
 <op-availability-edit
@@ -38,74 +114,125 @@
   (availabilityAdded)="onAvailabilityAdded()"
 />
 
-<ng-template #availabilityForWeekDayTemplate let-dayOfWeek="dayOfWeek">
-  <ng-container *ngIf="getSlotsFromDay(dayOfWeek) as slotsOfWeekDay">
-    <ng-container *ngIf="slotsOfWeekDay.length === 0">
-      <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
-            fromDate: getDefaultSlotDate(dayOfWeek),
-            toDate: null,
-            diffMinutes: null
-          }"/>
+
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////// TEMPLATE for slots list in a specific day ////////////////////////// -->
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<ng-template
+  #slotsForDayTemplate
+  let-dayOfWeek="dayOfWeek"
+  let-slotsForDay="slotsForDay"
+  let-firstsCreationSlotsData="firstsCreationSlotsData"
+  let-lastsCreationSlotsData="lastsCreationSlotsData"
+>
+  <!-- Empty day -->
+  <ng-container *ngIf="slotsForDay.length === 0 && getDefaultSlotDate(dayOfWeek) as defaultSlot">
+    <div
+      class="AvailabilityList-slot empty"
+      [class]="getCssClassesForEmptyDay()"
+      [style.cursor]="'pointer'"
+      (click)="onAddAvailability(defaultSlot, null)"
+    ></div>
+  </ng-container>
+
+  <ng-container *ngIf="slotsForDay.length > 0">
+    <!-- Firsts creation-slots -->
+    <ng-container *ngFor="let creationSlotData of firstsCreationSlotsData">
+      <ng-container *ngTemplateOutlet="slotTemplate; context: {
+      slot: null,
+      from: creationSlotData.from,
+      to: creationSlotData.to,
+      diff: creationSlotData.diff,
+      visible: false
+    }"/>
     </ng-container>
-    <ng-container *ngFor="let slot of slotsOfWeekDay; index as index">
-      <ng-container *ngIf="index === 0">
-        <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
-              fromDate: null,
-              toDate: slotsOfWeekDay[index].from,
-              diffMinutes: null
-            }"/>
-      </ng-container>
-      <div
-        class="Availability-week-day-slot p-button p-button-text"
-        (click)="onEditSlot(slot)"
-        [ngClass]="{
-              'p-button-primary': slot.practitioner === Practitioner.ROSE,
-              'p-button-help': slot.practitioner === Practitioner.ANAIS,
-            }"
+
+    <ng-container *ngFor="let slot of slotsForDay; index as index">
+      <!-- Actual created-slot -->
+      <ng-container *ngTemplateOutlet="slotTemplate; context: {
+      slot: slot,
+      from: slot.from,
+      to: slot.to,
+      diff: DateHelper.getDifferenceOfTimeInMinutes(slot.from, slot.to),
+      visible: true
+    }"/>
+
+      <!-- In-between creation-slots -->
+      <ng-container
+        *ngIf="index >= 0
+      && index < slotsForDay.length - 1
+      && getCreationSlotsDataFor(slot.from, slotsForDay[index].to, slotsForDay[index + 1].from) as inBetweenCreationSlotsData"
       >
-        <div class="Availability-week-day-slot-details">
-          <div>
-            <span class="pi pi-clock"></span>
-            <span class="ml-8">{{ DateHelper.format(slot.from, DateFormat.TIME) }} ({{ DateHelper.parseMinutes(DateHelper.getDifferenceOfTimeInMinutes(slot.from, slot.to)) }})</span>
-          </div>
-          <div *ngIf="slot.patient" class="Availability-week-day-slot-details-patient mt-2">
-            <span class="pi pi-user"></span>
-            <span class="Availability-week-day-slot-details-patient-lastname ml-8">{{ slot.patient.lastname }}</span>
-          </div>
-        </div>
-        <div class="Availability-week-day-slot-practitioner">
-          <op-practitioner-icon [practitioner]="slot.practitioner"/>
-        </div>
-      </div>
-      <ng-container *ngIf="index >= 0
-            && index < slotsOfWeekDay.length - 1
-            && DateHelper.getDifferenceOfTimeInMinutes(slotsOfWeekDay[index].to, slotsOfWeekDay[index + 1].from) as diffMinutes"
-      >
-        <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
-              fromDate: slotsOfWeekDay[index].to,
-              toDate: slotsOfWeekDay[index + 1].from,
-              diffMinutes: diffMinutes
-            }"/>
+        <ng-container *ngFor="let creationSlotData of inBetweenCreationSlotsData">
+          <ng-container *ngTemplateOutlet="slotTemplate; context: {
+          slot: null,
+          from: creationSlotData.from,
+          to: creationSlotData.to,
+          diff: creationSlotData.diff,
+          visible: true
+        }"/>
+        </ng-container>
       </ng-container>
-      <ng-container *ngIf="index === slotsOfWeekDay.length - 1">
-        <ng-container *ngTemplateOutlet="availabilityAddTemplate; context: {
-              fromDate: slotsOfWeekDay[index].to,
-              toDate: null,
-              diffMinutes: null
-            }"/>
-      </ng-container>
+    </ng-container>
+
+    <!-- Lasts creation-slots -->
+    <ng-container *ngFor="let creationSlotData of lastsCreationSlotsData">
+      <ng-container *ngTemplateOutlet="slotTemplate; context: {
+      slot: null,
+      from: creationSlotData.from,
+      to: creationSlotData.to,
+      diff: creationSlotData.diff,
+      visible: false
+    }"/>
     </ng-container>
   </ng-container>
 </ng-template>
 
+
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
+<!-- ///////////////////////// TEMPLATE for a specific created-slot or creation-slot //////////////////// -->
+<!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
 <ng-template
-  #availabilityAddTemplate
-  let-fromDate="fromDate"
-  let-toDate="toDate"
-  let-diffMinutes="diffMinutes"
+  #slotTemplate
+  let-slot="slot"
+  let-from="from"
+  let-to="to"
+  let-diff="diff"
+  let-visible="visible"
 >
-  <div class="Availability-week-day-slot creator p-button p-button-success" (click)="onAddAvailability(fromDate, toDate)">
-    <span *ngIf="!diffMinutes" class="pi pi-plus"></span>
-    <span *ngIf="diffMinutes" class="ml-6">{{ DateHelper.parseMinutes(diffMinutes) }}</span>
+  <div
+    class="AvailabilityList-slot p-button"
+    (click)="slot ? onEditSlot(slot) : onAddAvailability(from, to)"
+    [class]="getCssClassesForSlot(from, to)"
+    [ngClass]="{
+      'creation': !slot,
+      'visible': visible,
+      'p-button-primary': slot?.practitioner === Practitioner.ROSE,
+      'p-button-help': slot?.practitioner === Practitioner.ANAIS,
+      'p-button-outlined': !slot?.hasPatient
+    }"
+  >
+    <!-- Creation-slot -->
+    <ng-container *ngIf="!slot">
+      <span class="ml-6">{{ DateHelper.parseMinutes(diff) }}</span>
+    </ng-container>
+
+    <!-- Created-slot -->
+    <ng-container *ngIf="slot">
+      <div class="AvailabilityList-slot-details" [ngClass]="{ 'condensed': diff < DEFAULT_SLOT_DURATION }">
+        <div *ngIf="diff >= DEFAULT_SLOT_DURATION || !slot.patient">
+          <span class="pi pi-clock"></span>
+          <span class="ml-8">{{ DateHelper.format(slot.from, DateFormat.TIME) }} • {{ DateHelper.parseMinutes(DateHelper.getDifferenceOfTimeInMinutes(slot.from, slot.to)) }}</span>
+        </div>
+        <div *ngIf="slot.patient" class="AvailabilityList-slot-details-patient mt-2">
+          <span class="pi pi-user"></span>
+          <span class="ml-8">{{ slot.patient.lastname }}</span>
+          <span *ngIf="diff < DEFAULT_SLOT_DURATION">&nbsp;• {{ DateHelper.parseMinutes(DateHelper.getDifferenceOfTimeInMinutes(slot.from, slot.to)) }}</span>
+        </div>
+      </div>
+      <div *ngIf="diff >= DEFAULT_SLOT_DURATION" class="AvailabilityList-slot-practitioner">
+        <op-practitioner-icon [practitioner]="slot.practitioner"/>
+      </div>
+    </ng-container>
   </div>
 </ng-template>

@@ -11,7 +11,7 @@
   <div *ngIf="isAuthenticatedAsPractitioner && practitioner" class="Admin-container">
     <p-button
       (onClick)="onSwitchScreenShown()"
-      class="Admin-screenSwitcher"
+      class="Admin-screen-switcher"
       severity="warning"
     >
       <span class="pi pi-bookmark-fill mr-6"></span>
@@ -20,13 +20,13 @@
 
     <op-availability-list
       *ngIf="isShowingAvailabilities"
-      class="Admin-list"
+      class="Admin-screen-content"
       [practitioner]="practitioner"
     />
 
     <op-sessions-list
       *ngIf="!isShowingAvailabilities"
-      class="Admin-list"
+      class="Admin-screen-content"
     />
 
     <op-pwa-prompt/>

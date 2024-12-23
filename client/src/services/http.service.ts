@@ -86,7 +86,7 @@ export default class HttpService {
           authenticationToken: null,
           role: null
         })
-        window.setTimeout(() => window.location.reload(), 4000)
+        // window.setTimeout(() => window.location.reload(), 4000)
       }
       if (error.status === 401) {
         this.toastService.sendToast({
