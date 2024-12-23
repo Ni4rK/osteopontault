@@ -21,11 +21,6 @@ if [ "$deployClient" != 'n' ]; then
   if [ "$agreeVersion" == 'n' ]; then
     read -rp "Enter next version: " NEW_VERSION
   fi
-  echo -n "$NEW_VERSION" > version
-  if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
-    git add version
-    git commit -m "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
-  fi
 
   # build
   yarn run build && \
@@ -36,6 +31,13 @@ if [ "$deployClient" != 'n' ]; then
   mv dist/browser/styles.css dist/browser/styles-$NEW_VERSION.css && \
   sed -i '' "s/href=\"styles.css\"/href=\"styles-$NEW_VERSION.css\"/"g dist/browser/index.html && \
 
+  # commit version if build succeeds
+  echo -n "$NEW_VERSION" > version
+  if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+    git add version
+    git commit -m "[AUTO] Version upgrade from $OLD_VERSION to $NEW_VERSION"
+  fi
+
   # deploy
   aws s3 sync ./dist/browser s3://osteopontault.fr/ && \
   aws s3 rm "s3://osteopontault.fr/main-$OLD_VERSION.js" && \
@@ -43,7 +45,7 @@ if [ "$deployClient" != 'n' ]; then
   aws s3 rm "s3://osteopontault.fr/styles-$OLD_VERSION.css" && \
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/main-$NEW_VERSION.js" && \
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/polyfills-$NEW_VERSION.js" && \
-  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/styles-$NEW_VERSION.css"
+  aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/styles-$NEW_VERSION.css" && \
   aws cloudfront create-invalidation --no-cli-pager --distribution-id E1E3RY89L0RG0E --paths "/index.html"
 fi
 
