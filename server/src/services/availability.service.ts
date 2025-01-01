@@ -1,5 +1,5 @@
 import {Availability} from "@shared/types/availability.interface";
-import clientDatabase from "../database/client.database";
+import databaseClient from "../clients/database.client";
 import {isSlotPersisted, mapDatabaseItemToSlotPersisted, Slot, SlotPersisted} from "@shared/types/slot.interface";
 import DateHelper from "@shared/helpers/date.helper";
 import DateFormat from "@shared/types/date-format.enum";
@@ -9,10 +9,12 @@ import type {NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 import EnvironmentHelper from "../utils/environment.helper";
 import NotificationPushService from "./notification-push.service";
 import {Practitioner} from "@shared/types/practitioner.enum";
+import SmsClient from "../clients/sms.client";
+import SmsHelper from "../utils/sms.helper";
 
 export default class AvailabilityService {
   static async find(uid: string): Promise<SlotPersisted> {
-    const slots = await clientDatabase.find({
+    const slots = await databaseClient.find({
       TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
       FilterExpression: "uid = :uid",
       ExpressionAttributeValues: {":uid": uid}
@@ -42,7 +44,7 @@ export default class AvailabilityService {
       filterExpressions.push('toDate <= :toDate')
       expressionAttributeValues[':toDate'] = to.toISOString()
     }
-    const results = await clientDatabase.find({
+    const results = await databaseClient.find({
       TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
       FilterExpression: filterExpressions.length ? filterExpressions.join(' AND ') : undefined,
       ExpressionAttributeValues: filterExpressions.length ? expressionAttributeValues : undefined
@@ -67,7 +69,7 @@ export default class AvailabilityService {
   static async insertAvailabilitySlots(slots: (Slot)[]): Promise<void> {
     for (const slot of slots) {
       const hasPatient = !!slot.patient && !!slot.patient.firstname && !!slot.patient.lastname && !!slot.patient.phone && !!slot.patient.type
-      await clientDatabase.insert({
+      await databaseClient.insert({
         TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
         Item: {
           uid: `${Math.floor(Math.random() * 1000)}-${Date.now()}`,
@@ -87,7 +89,7 @@ export default class AvailabilityService {
   static async updateAvailabilitySlots(slots: SlotPersisted[], sendNotification: boolean, byPractitioner: Practitioner): Promise<void> {
     await slots.forEach(async slot => {
       const bookedAt = slot.bookedAt ? slot.bookedAt : new Date().toISOString()
-      await clientDatabase.update({
+      await databaseClient.update({
         TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
         Key: {
           uid: slot.uid
@@ -116,18 +118,14 @@ export default class AvailabilityService {
       })
     })
 
-    if (sendNotification) {
-      for (const slot of slots) {
-        if (!slot.hasPatient) {
-          continue
-        }
-        const slotShortDateTime = `${DateHelper.format(slot.from, DateFormat.SHORT_DATE)} à ${DateHelper.format(slot.from, DateFormat.TIME)}`
-        const slotLongDateTime = DateHelper.format(slot.from, DateFormat.DATE_TIME)
-        await NotificationPushService.notify(slot.practitioner, {
-          title: `Créneau reservé (${slotShortDateTime}) via ${byPractitioner}`,
-          body: `${slot.patient!.lastname} ${slot.patient!.firstname} a pris le créneau du ${slotLongDateTime}`
-        })
+    for (const slot of slots) {
+      if (!slot.hasPatient) {
+        continue
       }
+      if (sendNotification) {
+        await AvailabilityService.notifyPractitioner(slot, slot.patient!, byPractitioner)
+      }
+      await AvailabilityService.notifyPatient(slot, slot.patient!)
     }
   }
 
@@ -137,7 +135,7 @@ export default class AvailabilityService {
       throw new BadRequestException("Créneau déjà réservé")
     }
     const bookedAt = new Date().toISOString()
-    await clientDatabase.update({
+    await databaseClient.update({
       TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
       Key: {
         uid: slot.uid
@@ -159,22 +157,38 @@ export default class AvailabilityService {
       }
     })
 
-    const slotShortDateTime = `${DateHelper.format(slot.from, DateFormat.SHORT_DATE)} à ${DateHelper.format(slot.from, DateFormat.TIME)}`
-    const slotLongDateTime = DateHelper.format(slot.from, DateFormat.DATE_TIME)
-    await NotificationPushService.notify(slot.practitioner, {
-      title: `Créneau reservé (${slotShortDateTime})`,
-      body: `${patient.lastname} ${patient.firstname} a pris le créneau du ${slotLongDateTime}`
-    })
+    await AvailabilityService.notifyPractitioner(slot, patient)
+    await AvailabilityService.notifyPatient(slot, patient)
   }
 
   static async removeAvailabilitySlots(slotsUid: string[]): Promise<void> {
     await slotsUid.forEach(async uid => {
-      await clientDatabase.remove({
+      await databaseClient.remove({
         TableName: EnvironmentHelper.getAvailabilitySlotTableName(),
         Key: {
           uid: uid
         }
       })
     })
+  }
+
+  private static async notifyPractitioner(slot: SlotPersisted, patient: Patient, via: Practitioner | null = null) {
+    const bookedByPractitioner = via ? ` via ${via}` : ''
+    const slotShortDateTime = `${DateHelper.format(slot.from, DateFormat.SHORT_DATE)} à ${DateHelper.format(slot.from, DateFormat.TIME)}`
+    const slotLongDateTime = DateHelper.format(slot.from, DateFormat.DATE_TIME)
+
+    await NotificationPushService.notify(slot.practitioner, {
+      title: `Créneau reservé (${slotShortDateTime})${bookedByPractitioner}`,
+      body: `${patient.lastname} ${patient.firstname} a pris le créneau du ${slotLongDateTime}`
+    })
+  }
+
+  private static async notifyPatient(slot: SlotPersisted, patient: Patient) {
+    // TODO: find some cheap way to notify patient
+    // if (SmsHelper.isValidPhone(patient.phone)) {
+    //   const body = SmsHelper.generateBookConfirmationSmsBody(slot, patient)
+    //   const francePhone = SmsHelper.transformIntoFrenchPhoneNumber(patient.phone)
+    //   await SmsClient.send(francePhone, body)
+    // }
   }
 }

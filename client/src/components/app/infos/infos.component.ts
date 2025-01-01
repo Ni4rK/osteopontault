@@ -20,4 +20,8 @@ export class InfosComponent {
   }
 
   protected readonly ROSE_PHONE = ROSE_PHONE
+
+  get phone(): string {
+    return `tel://+33${ROSE_PHONE.slice(1)}`
+  }
 }

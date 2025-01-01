@@ -15,7 +15,7 @@ import {PutCommandInput} from "@aws-sdk/lib-dynamodb/dist-types/commands/PutComm
 import {DeleteCommandInput} from "@aws-sdk/lib-dynamodb/dist-types/commands/DeleteCommand";
 import EnvironmentHelper from "../utils/environment.helper";
 
-class ClientDatabase {
+class DatabaseClient {
   public readonly client: DynamoDBClient
   public dDBClient: DynamoDBDocumentClient
 
@@ -46,5 +46,5 @@ class ClientDatabase {
   }
 }
 
-const clientDatabase = new ClientDatabase()
-export default clientDatabase
+const databaseClient = new DatabaseClient()
+export default databaseClient

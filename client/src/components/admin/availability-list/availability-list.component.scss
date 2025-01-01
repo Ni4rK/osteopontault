@@ -22,7 +22,7 @@ $hourRowHeight_SM: 60px;
 
 @for $i from 0 through 24 * 60 {
   .AvailabilityList-slot-top-#{$i} {
-    top: #{$i * $hourRowHeight_LG / 60 - 1};
+    top: calc($i * $hourRowHeight_LG / 60 - 1px);
     @media (max-width: 800px) {
       top: calc($i * $hourRowHeight_SM / 60 - 1px);
     }
@@ -31,9 +31,9 @@ $hourRowHeight_SM: 60px;
 
 @for $i from 0 through 24 * 60 {
   .AvailabilityList-slot-height-#{$i} {
-    height: #{$i * $hourRowHeight_LG / 60 - 2};
-    min-height: #{$i * $hourRowHeight_LG / 60 - 2};
-    max-height: #{$i * $hourRowHeight_LG / 60 - 2};
+    height: calc($i * $hourRowHeight_LG / 60 - 2px);
+    min-height: calc($i * $hourRowHeight_LG / 60 - 2px);
+    max-height: calc($i * $hourRowHeight_LG / 60 - 2px);
     @media (max-width: 800px) {
       height: calc($i * $hourRowHeight_SM / 60 - 2px);
       min-height: calc($i * $hourRowHeight_SM / 60 - 2px);

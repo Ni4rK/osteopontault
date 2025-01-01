@@ -4,7 +4,7 @@ import {HttpResponse} from "@shared/types/http-response.type";
 import HttpMethod from "@shared/types/http-method.enum";
 import BadRequestException from "../exceptions/bad-request.exception";
 import HttpPath from "@shared/types/http-path.enum";
-import clientDatabase from "../database/client.database";
+import databaseClient from "../clients/database.client";
 import {CreateTableCommand, CreateTableInput} from "@aws-sdk/client-dynamodb";
 import {http200EmptyResponse} from "@shared/helpers/common.http-responses";
 import DbTable from "@shared/types/db-table.enum";
@@ -44,7 +44,7 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
       passwordHashed: await PasswordService.hash(password),
       pwaSubscriptions: []
     }
-    await clientDatabase.insert({
+    await databaseClient.insert({
       TableName: DbTable.AUTHENTICATION_MEMBER,
       Item: {
         ...member,
@@ -76,7 +76,7 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
           "WriteCapacityUnits": 2
         },
       }
-      await clientDatabase.client.send(new CreateTableCommand(authenticationTableInput))
+      await databaseClient.client.send(new CreateTableCommand(authenticationTableInput))
     }
     if (!request.query["database"] || request.query["database"] === DbTable.AVAILABILITY_SLOT) {
       const availabilityTableInput: CreateTableInput = {
@@ -98,7 +98,7 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
           "WriteCapacityUnits": 2
         },
       }
-      await clientDatabase.client.send(new CreateTableCommand(availabilityTableInput))
+      await databaseClient.client.send(new CreateTableCommand(availabilityTableInput))
     }
     if (!request.query["database"] || request.query["database"] === DbTable.ANALYTICS) {
       const analyticsTableInput: CreateTableInput = {
@@ -120,7 +120,7 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
           "WriteCapacityUnits": 2
         },
       }
-      await clientDatabase.client.send(new CreateTableCommand(analyticsTableInput))
+      await databaseClient.client.send(new CreateTableCommand(analyticsTableInput))
     }
     return http200EmptyResponse
   }
@@ -133,7 +133,7 @@ export const scriptsHandler = handlerWrapper(async (request: HttpRequest): Promi
 
 async function migrationFeaturePwaSubscriptions() {
   const authenticationMemberTable = EnvironmentHelper.getAuthenticationMemberTableName()
-  const result = await clientDatabase.find({
+  const result = await databaseClient.find({
     TableName: authenticationMemberTable
   })
   const members = (result?.Items ?? [])
@@ -141,7 +141,7 @@ async function migrationFeaturePwaSubscriptions() {
     if (member["pwaSubscriptions"]) {
       continue
     }
-    await clientDatabase.update({
+    await databaseClient.update({
       TableName: authenticationMemberTable,
       Key: {
         username: member["username"]

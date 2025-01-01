@@ -4,7 +4,7 @@ import EnvironmentHelper from "../utils/environment.helper";
 import {PWA_VAPID_PUBLIC_KEY_DEV, PWA_VAPID_PUBLIC_KEY_PROD} from "@shared/helpers/configuration";
 import MemberService from "./member.service";
 import {MemberPwaSubscription} from "@shared/types/member.interface";
-import clientDatabase from "../database/client.database";
+import databaseClient from "../clients/database.client";
 
 export default class NotificationPushService {
   static MAX_NOTIFICATION = 5
@@ -39,7 +39,7 @@ export default class NotificationPushService {
     }
 
     if (pwaSubscriptionsToKeep.length !== member.pwaSubscriptions.length) {
-      await clientDatabase.update({
+      await databaseClient.update({
         TableName: EnvironmentHelper.getAuthenticationMemberTableName(),
         Key: {
           username: member.username

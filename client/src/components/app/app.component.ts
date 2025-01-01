@@ -182,6 +182,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onCancelAppointment() {
     this.slotForAppointment = null
+    this.loadAvailabilities()
+
     this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_CANCELED)
   }
 

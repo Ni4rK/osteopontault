@@ -1,5 +1,5 @@
 import {AnalyticsActionsForSession, mapDatabaseItemToAnalyticsActionsForSession,} from "@shared/types/analytics.types";
-import clientDatabase from "../database/client.database";
+import databaseClient from "../clients/database.client";
 import EnvironmentHelper from "../utils/environment.helper";
 import type {NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 
@@ -13,7 +13,7 @@ export default class AnalyticsService {
       filterExpressions.push('sessionEndDate <= :toDate')
       expressionAttributeValues[':toDate'] = to.toISOString()
     }
-    const results = await clientDatabase.find({
+    const results = await databaseClient.find({
       TableName: EnvironmentHelper.getAnalyticsTableName(),
       FilterExpression: filterExpressions.join(' AND '),
       ExpressionAttributeValues: expressionAttributeValues
@@ -27,7 +27,7 @@ export default class AnalyticsService {
       return;
     }
 
-    const results = await clientDatabase.find({
+    const results = await databaseClient.find({
       TableName: EnvironmentHelper.getAnalyticsTableName(),
       FilterExpression: "sessionId = :sessionId",
       ExpressionAttributeValues: {":sessionId": lastActionsForSession.sessionId},
@@ -35,7 +35,7 @@ export default class AnalyticsService {
     })
 
     if (!results.Count) {
-      await clientDatabase.insert({
+      await databaseClient.insert({
         TableName: EnvironmentHelper.getAnalyticsTableName(),
         Item: {
           userId: lastActionsForSession.userId,
@@ -48,7 +48,7 @@ export default class AnalyticsService {
     } else if (results.Count === 1) {
       const currentActionsForSession = mapDatabaseItemToAnalyticsActionsForSession(results.Items!.at(0)!)
       currentActionsForSession.actions.push(...lastActionsForSession.actions)
-      await clientDatabase.update({
+      await databaseClient.update({
         TableName: EnvironmentHelper.getAnalyticsTableName(),
         Key: {
           sessionId: lastActionsForSession.sessionId,
