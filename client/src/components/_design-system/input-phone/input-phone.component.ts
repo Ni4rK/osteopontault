@@ -1,10 +1,10 @@
-import {AfterContentInit, ChangeDetectorRef, Component, DoCheck, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {HexagonComponent} from "../hexagon/hexagon.component";
 import {NgClass, NgIf} from "@angular/common";
-import {ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule} from "@angular/forms";
 import {InputTextModule} from "primeng/inputtext";
-import {InputMask, InputMaskModule} from "primeng/inputmask";
-import {isValidPhone} from "../../../forms/patient.form";
+import {InputMaskModule} from "primeng/inputmask";
+import PhoneHelper from "@shared/helpers/phone.helper";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'op-input-phone',
@@ -12,68 +12,30 @@ import {isValidPhone} from "../../../forms/patient.form";
   imports: [
     HexagonComponent,
     NgIf,
-    FormsModule,
     InputTextModule,
-    ReactiveFormsModule,
+    NgClass,
     InputMaskModule,
-    NgClass
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: InputPhoneComponent,
-      multi: true,
-    },
+    FormsModule
   ],
   templateUrl: './input-phone.component.html',
   styleUrl: './input-phone.component.scss'
 })
-export class InputPhoneComponent implements ControlValueAccessor {
+export class InputPhoneComponent implements OnChanges {
+  @Input() initialValue?: string
+  @Output() update: EventEmitter<string> = new EventEmitter<string>()
   phone = ""
   valid = true
-  disabled = false;
 
-  onChange = (p: string) => {};
-  onTouched = () => {};
-
-  @ViewChild('inputMaskComponent') set inputMaskComponent(mask: InputMask) {
-    mask.inputViewChild!.nativeElement.inputMode = 'numeric'
+  ngOnChanges(changes: SimpleChanges) {
+    if (this.initialValue?.length) {
+      this.phone = PhoneHelper.toReadableNumber(this.initialValue)
+    }
   }
 
-  writeValue(phone: string) {
-    this.phone = phone
-  }
-
-  registerOnChange(onChange: any) {
-    this.onChange = onChange
-  }
-
-  registerOnTouched(onTouched: any) {
-    this.onTouched = onTouched
-  }
-
-  setDisabledState(disabled: boolean) {
-    this.disabled = disabled
-  }
-
-  onFocus() {
-    const sanitizedPhone = this.sanitizePhone()
-    this.valid = isValidPhone(sanitizedPhone)
-    this.onTouched()
-  }
-
-  onPhoneCompleted() {
-    const sanitizedPhone = this.phone.replaceAll(/[ •]/g, '')
-    this.valid = isValidPhone(sanitizedPhone)
-    this.onChange(sanitizedPhone)
-  }
-
-  onPhoneChanged() {
-    const sanitizedPhone = this.sanitizePhone()
-    this.valid = isValidPhone(sanitizedPhone)
-  }
-
-  sanitizePhone(): string {
-    return this.phone.replaceAll(/[ •]/g, '')
+  onChange() {
+    const sanitizedNumber = PhoneHelper.sanitizeNumber(this.phone)
+    this.phone = PhoneHelper.toReadableNumber(sanitizedNumber)
+    this.valid = PhoneHelper.isValidNumber(sanitizedNumber)
+    this.update.emit(sanitizedNumber)
   }
 }

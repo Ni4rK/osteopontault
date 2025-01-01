@@ -25,6 +25,7 @@ import {ROSE_PHONE} from "../../utils/constants";
 import AnalyticsPulsar from "./analytics.pulsar";
 import {AnalyticsAction, AnalyticsActionDataTypes} from "@shared/types/analytics.types";
 import {Patient} from "@shared/types/patient.interface";
+import PhoneHelper from "@shared/helpers/phone.helper";
 
 @Component({
   selector: 'op-app',
@@ -104,7 +105,7 @@ export class AppComponent implements OnInit, OnDestroy {
       })
     this.toasterService.sendToast({
       severity: "success",
-      summary: `Pour toute demande urgente, n'hésitez pas à appeler le ${ROSE_PHONE}`,
+      summary: `Pour toute demande urgente, n'hésitez pas à appeler le ${PhoneHelper.toReadableNumber(ROSE_PHONE)}`,
       sticky: true
     })
   }

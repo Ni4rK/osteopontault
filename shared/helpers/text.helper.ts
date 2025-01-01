@@ -1,3 +1,5 @@
+import PhoneHelper from "./phone.helper";
+
 export default class TextHelper {
   static toUcFirst(value: string): string {
     const words = value.split(/[-_'" .]/)
@@ -20,5 +22,9 @@ export default class TextHelper {
 
     const otherLetters = word.slice(1).toLowerCase()
     return `${firstLetter}${otherLetters}`
+  }
+
+  static toReadablePhoneNumber(value: string): string {
+    return PhoneHelper.toReadableNumber(value)
   }
 }

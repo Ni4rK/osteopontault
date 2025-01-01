@@ -1,14 +1,11 @@
-<p-inputMask
-  #inputMaskComponent
-  mask="9 9 • 9 9 • 9 9 • 9 9 • 9 9"
+<input
+  name="phone"
+  class="p-inputtext p-component p-element p-inputmask ng-touched"
   [ngClass]="{
-    'invalid': !valid,
+    'ng-invalid': !valid,
   }"
   [autofocus]="false"
-  [autoClear]="false"
-  [disabled]="disabled"
   [(ngModel)]="phone"
-  (onFocus)="onFocus()"
-  (ngModelChange)="onPhoneChanged()"
-  (onComplete)="onPhoneCompleted()"
+  (keyup)="onChange()"
+  (change)="onChange()"
 />

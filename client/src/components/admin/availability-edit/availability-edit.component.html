@@ -71,7 +71,8 @@
       <p class="Availability-edit-form-input">
         <label> Téléphone </label>
         <op-input-phone
-          [formControl]="form.controls.patient.controls.phone"
+          [initialValue]="slot.patient?.phone"
+          (update)="onPhoneChanged($event)"
         />
       </p>
       <p class="Availability-edit-form-input">

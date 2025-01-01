@@ -124,6 +124,10 @@ export class AppointmentComponent {
     this.analyticsPulsar.action(AnalyticsAction.APPOINTMENT_PHONE_FILLED, analyticsData)
   }
 
+  onPhoneChanged(phone: string) {
+    this.form.controls.phone.setValue(phone)
+  }
+
   onChangedPatientType() {
     const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_PATIENT_TYPE_CHANGED] = {
       patientType: this.form.controls.type.value!

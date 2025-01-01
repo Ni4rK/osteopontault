@@ -2,18 +2,19 @@
   [modal]="true"
   [closable]="false"
   [visible]="true"
-  [showHeader]="false"
   [draggable]="false"
 >
-  <div class="p-dialog-header Appointment-header">
-    <div class="p-dialog-title">
-      Créneau du {{ DateHelper.format(slot.from, DateFormat.DATE_TIME) }}
+  <p-header>
+    <div class="Appointment-header">
+      <div class="p-dialog-title">
+        Créneau du {{ DateHelper.format(slot.from, DateFormat.DATE_TIME) }}
+      </div>
+      <op-practitioner-icon
+        [practitioner]="slot.practitioner"
+        [width]="50"
+      />
     </div>
-    <op-practitioner-icon
-      [practitioner]="slot.practitioner"
-      [width]="50"
-    />
-  </div>
+  </p-header>
   <form class="Appointment-form" [formGroup]="form">
     <p class="Appointment-form-input">
       <label> Nom * </label>
@@ -40,7 +41,7 @@
     <p class="Appointment-form-input">
       <label> Téléphone * </label>
       <op-input-phone
-        [formControl]="form.controls.phone"
+        (update)="onPhoneChanged($event)"
         (focusout)="onFocusOutPhone()"
       />
     </p>

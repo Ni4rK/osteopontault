@@ -9,8 +9,6 @@ import type {NativeAttributeValue} from "@aws-sdk/util-dynamodb";
 import EnvironmentHelper from "../utils/environment.helper";
 import NotificationPushService from "./notification-push.service";
 import {Practitioner} from "@shared/types/practitioner.enum";
-import SmsClient from "../clients/sms.client";
-import SmsHelper from "../utils/sms.helper";
 
 export default class AvailabilityService {
   static async find(uid: string): Promise<SlotPersisted> {

@@ -93,6 +93,10 @@ export class AvailabilityEditComponent implements OnChanges {
     }
   }
 
+  onPhoneChanged(phone: string) {
+    this.form.controls.patient.controls.phone.setValue(phone)
+  }
+
   onHasPatientChanged() {
     if (this.form.controls.hasPatient.value) {
       this.form.controls.patient.patchValue(this.slot.patient ?? {
