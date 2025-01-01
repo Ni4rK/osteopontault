@@ -1,6 +1,7 @@
 <input
   name="phone"
   class="p-inputtext p-component p-element p-inputmask ng-touched"
+  [attr.inputmode]="'numeric'"
   [ngClass]="{
     'ng-invalid': !valid,
   }"
