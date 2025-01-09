@@ -1,0 +1,77 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmit": true,
+    "target": "ESNext",                      // Target the latest ECMAScript version
+    "module": "ESNext",                      // Use ES module syntax
+    "moduleResolution": "Node",              // Resolve modules like Node.js
+    "strict": true,                          // Enable strict type-checking
+    "jsx": "preserve",                       // Support JSX (if using TSX with Vue)
+    "esModuleInterop": true,                 // Enable interoperability between CommonJS and ES modules
+    "allowSyntheticDefaultImports": true,    // Allow default imports for modules without a default export
+    "skipLibCheck": true,                    // Skip checking of declaration files
+    "forceConsistentCasingInFileNames": true,// Ensure consistent casing in imports
+    "baseUrl": ".",                          // Base directory for resolving paths
+    "paths": {                               // Define path aliases
+      "@/*": ["src/*"],
+      "@shared/*": ["../shared/*"]
+    },
+    "strictNullChecks": true,                // Strict null safety
+    "noImplicitAny": true,                   // Disallow `any` type unless explicitly specified
+    "noUnusedLocals": true,                  // Warn about unused local variables
+    "noUnusedParameters": true,              // Warn about unused function parameters
+    "noFallthroughCasesInSwitch": true,      // Prevent fallthrough cases in switch statements
+    "noImplicitThis": true,                  // Warn on 'this' being implicitly any
+    "types": ["vite/client"]                 // Include Vite-specific type declarations
+  },
+  "include": [
+    "src/**/*.ts",                           // Include all TypeScript files
+    "src/**/*.d.ts",                         // Include type declaration files
+    "src/**/*.tsx",                          // Include TSX files if needed
+    "src/**/*.vue"                           // Include Vue single-file components
+  ],
+  "exclude": [
+    "node_modules",                          // Exclude dependencies
+    "dist",                                  // Exclude build output
+    "**/*.spec.ts"                           // Exclude test files if required
+  ]
+}
+//{
+//  "compileOnSave": false,
+//  "compilerOptions": {
+//    "outDir": "./dist/out-tsc",
+//    "strict": true,
+//    "noImplicitOverride": true,
+//    "noPropertyAccessFromIndexSignature": true,
+//    "noImplicitReturns": true,
+//    "noFallthroughCasesInSwitch": true,
+//    "skipLibCheck": true,
+//    "esModuleInterop": true,
+//    "sourceMap": true,
+//    "declaration": false,
+//    "moduleResolution": "bundler",
+//    "importHelpers": true,
+//    "target": "ES2022",
+//    "module": "ES2022",
+//    "lib": [
+//      "ES2022",
+//      "dom"
+//    ],
+//    "paths": {
+//      "@shared/*": [
+//        "../shared/*"
+//      ]
+//    }
+//  },
+//  "files": [],
+//  "references": [
+//    {
+//      "path": "./tsconfig.node.json"
+//    },
+//    {
+//      "path": "./tsconfig.app.json"
+//    }
+//  ]
+//}

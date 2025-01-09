@@ -1,6 +1,5 @@
 import DateFormat from "../types/date-format.enum";
 import {isDate} from "./common-types.guards";
-import {SlotPersisted} from "../types/slot.interface";
 
 export default class DateHelper {
   static format(date: Date | string, format: DateFormat): string {

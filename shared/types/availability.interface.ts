@@ -1,5 +1,5 @@
 import {isSlot, SlotPersisted} from "./slot.interface";
-import {isArrayOf, isDate, isObject, isString} from "../helpers/common-types.guards";
+import {isArrayOf, isObject, isString} from "../helpers/common-types.guards";
 
 export interface Availability {
   date: string;

@@ -1,0 +1,12 @@
+.unclickable {
+  cursor: default;
+}
+
+@for $i from 0 through 50 {
+  .top-#{$i}p {
+    top: #{$i}#{'%'},;
+  }
+  .left-#{$i}p {
+    left: #{$i}#{'%'},;
+  }
+}

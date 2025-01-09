@@ -1,8 +1,6 @@
 import {isPatient, Patient} from "./patient.interface";
 import {isPractitioner, Practitioner} from "./practitioner.enum";
-import {isDate, isNull, isObject, isString, isUndefined} from "../helpers/common-types.guards";
-import DateHelper from "../helpers/date.helper";
-import DateFormat from "./date-format.enum";
+import {isNull, isObject, isString, isUndefined} from "../helpers/common-types.guards";
 
 export interface Slot {
   from: string
