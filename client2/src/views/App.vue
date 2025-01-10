@@ -31,7 +31,7 @@
     </div>
 
     <v-btn
-      v-if="!showScrollTop"
+      v-if="showScrollTop"
       class="App-scroll_top"
       icon="mdi-arrow-up-bold"
       variant="elevated"
