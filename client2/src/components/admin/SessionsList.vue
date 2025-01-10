@@ -20,7 +20,7 @@
   <div class="Sessions-list">
     <v-progress-circular
       v-if="isLoadingSessions"
-      class="position-absolute top-40p left-49p"
+      class="position-fixed top-40p left-49p"
       color="primary"
       indeterminate
     />
@@ -53,7 +53,7 @@
                 <div v-for="actionData of session.actions" class="Sessions-action">
                   <span class="Sessions-action-time">{{ DateHelper.format(actionData.date, DateFormat.TIME_SECONDS) }}</span>
                   <span class="Sessions-action-text">{{ getReadableAction(actionData.action) }}</span>
-                  <span v-if="actionData.data && actionData.data.length">{{ getReadableData(actionData) }}</span>
+                  <span v-if="actionData.data && actionData.data.length">&nbsp;{{ getReadableData(actionData) }}</span>
                 </div>
               </template>
             </v-expansion-panel>

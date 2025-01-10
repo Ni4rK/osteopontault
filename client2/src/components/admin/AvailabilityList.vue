@@ -74,7 +74,12 @@
             </div>
             <div class="AvailabilityListMobile-calendar-week-day-grid">
               <div v-for="_ of hours" class="AvailabilityListMobile-calendar-week-day-grid-hour"></div>
-              <v-progress-circular v-if="isLoadingAvailabilities" indeterminate/>
+              <v-progress-circular
+                v-if="isLoadingAvailabilities"
+                class="position-fixed top-40p left-49p"
+                color="primary"
+                indeterminate
+              />
               <AvailabilityListSlotsForDay
                 :day-of-week="dayOfWeek"
                 :slots-for-day="getSlotsFromDay(dayOfWeek)"
@@ -97,7 +102,7 @@
       <div class="AvailabilityListDesktop-calendar-days-hours"><!-- Top of column --></div>
       <v-progress-circular
         v-if="isLoadingAvailabilities"
-        class="position-absolute top-40p left-49p"
+        class="position-fixed top-40p left-49p"
         color="primary"
         indeterminate
       />
