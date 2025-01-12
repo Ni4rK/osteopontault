@@ -2,6 +2,18 @@
   cursor: default;
 }
 
+.z-1 {
+  z-index: 1;
+}
+
+.z-10 {
+  z-index: 10;
+}
+
+.z-inf {
+  z-index: 9999;
+}
+
 @for $i from 0 through 50 {
   .top-#{$i}p {
     top: #{$i}#{'%'},;

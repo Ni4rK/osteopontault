@@ -2,9 +2,12 @@
 
 cd client2 && yarn run dev &
 P1=$!
+
 cd server && npm run watch &
 P2=$!
-cd server && sam local start-api --config-file=./aws-samconfig.toml --template-file=./aws-template-dev.yaml &
+
+DOCKER_HOST=unix://$HOME/.docker/run/docker.sock
+cd server && DOCKER_HOST=$DOCKER_HOST sam local start-api --config-file=./aws-samconfig.toml --template-file=./aws-template-dev.yaml &
 P3=$!
 
 cd server && \

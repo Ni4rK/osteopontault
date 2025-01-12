@@ -52,10 +52,13 @@
   <!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
   <!-- ////////////////////////////////////////// FOR MOBILE VIEW  //////////////////////////////////////// -->
   <!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
-  <div
-    v-if="isMobile"
-    class="AvailabilityListMobile-container"
-  >
+  <div v-if="isMobile" class="AvailabilityListMobile-container">
+    <v-progress-circular
+      v-if="isLoadingAvailabilities"
+      class="position-fixed top-40p left-49p z-10"
+      color="primary"
+      indeterminate
+    />
     <div class="AvailabilityListMobile-calendar">
       <div class="AvailabilityListMobile-calendar-days">
         <div v-for="dayOfWeek of week" class="AvailabilityListMobile-calendar-days-item">
@@ -74,12 +77,6 @@
             </div>
             <div class="AvailabilityListMobile-calendar-week-day-grid">
               <div v-for="_ of hours" class="AvailabilityListMobile-calendar-week-day-grid-hour"></div>
-              <v-progress-circular
-                v-if="isLoadingAvailabilities"
-                class="position-fixed top-40p left-49p"
-                color="primary"
-                indeterminate
-              />
               <AvailabilityListSlotsForDay
                 :day-of-week="dayOfWeek"
                 :slots-for-day="getSlotsFromDay(dayOfWeek)"
@@ -98,14 +95,14 @@
   <!-- ////////////////////////////////////////// FOR DESKTOP VIEW  //////////////////////////////////////// -->
   <!-- //////////////////////////////////////////////////////////////////////////////////////////////////// -->
   <div v-if="!isMobile" class="AvailabilityListDesktop-calendar">
+    <v-progress-circular
+      v-if="isLoadingAvailabilities"
+      class="position-fixed top-40p left-49p z-10"
+      color="primary"
+      indeterminate
+    />
     <div class="AvailabilityListDesktop-calendar-days">
       <div class="AvailabilityListDesktop-calendar-days-hours"><!-- Top of column --></div>
-      <v-progress-circular
-        v-if="isLoadingAvailabilities"
-        class="position-fixed top-40p left-49p"
-        color="primary"
-        indeterminate
-      />
       <div v-for="dayOfWeek of week" class="AvailabilityListDesktop-calendar-days-item">
         {{ DateHelper.format(dayOfWeek, DateFormat.MEDIUM_DATE) }}
       </div>

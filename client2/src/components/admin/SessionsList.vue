@@ -17,14 +17,14 @@
     />
   </div>
 
-  <div class="Sessions-list">
-    <v-progress-circular
-      v-if="isLoadingSessions"
-      class="position-fixed top-40p left-49p"
-      color="primary"
-      indeterminate
-    />
+  <v-progress-circular
+    v-if="isLoadingSessions"
+    class="position-fixed top-40p left-49p z-10"
+    color="primary"
+    indeterminate
+  />
 
+  <div class="Sessions-list">
     <h4 v-if="!isLoadingSessions && !sessionsByUser.length" style="text-align: center">
       Aucune activité ce jour
     </h4>
