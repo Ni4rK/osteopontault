@@ -89,7 +89,7 @@ export default class Timeline extends Vue {
     return document.body.clientWidth < 800
   }
 
-  get formatForOppositeSlot(): string {
+  get formatForOppositeSlot(): DateFormat {
     return this.isMobile ? DateFormat.MEDIUM_DATE : DateFormat.FULL_DATE
   }
 }
