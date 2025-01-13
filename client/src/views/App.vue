@@ -86,8 +86,6 @@ import {CacheService} from "@/services/cache.service";
 import AnalyticsPulsarService from "@/services/analytics-pulsar.service";
 import {Practitioner} from "@shared/types/practitioner.enum";
 import {Role} from "@shared/types/role.enum";
-import PhoneHelper from "@shared/helpers/phone.helper";
-import {ROSE_PHONE} from "@/utils/global.constants";
 import {AnalyticsAction, type AnalyticsActionDataTypes} from "@shared/types/analytics.types";
 import type {Patient} from "@shared/types/patient.interface";
 import {Container} from "typedi";
@@ -104,7 +102,6 @@ export default class App extends Vue {
   private readonly cacheService = Container.get(CacheService)
   private readonly analyticsPulsarService = Container.get(AnalyticsPulsarService)
 
-  title = 'client'
   showAllSlots = true
   showScrollTop = false
   availabilities: Availability[] = []
@@ -151,7 +148,7 @@ export default class App extends Vue {
     this.loadAvailabilities()
     this.toasterService.sendToast({
       type: "info",
-      timeout: 5000,
+      timeout: 10000,
       component: Disclaimer
     })
   }
