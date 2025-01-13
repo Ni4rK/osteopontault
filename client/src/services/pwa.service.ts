@@ -1,28 +1,25 @@
-import {Injectable} from "@angular/core";
 import {isPwaBeforeInstallPromptEvent, PwaBeforeInstallPromptEvent, PwaHooks} from "@shared/types/pwa.types";
-import {isFunction} from "rxjs/internal/util/isFunction";
 import {
   PWA_SERVICE_WORKER_SCOPE,
   PWA_SERVICE_WORKER_SCRIPT_PATH,
   PWA_VAPID_PUBLIC_KEY_DEV,
   PWA_VAPID_PUBLIC_KEY_PROD
 } from "@shared/helpers/configuration";
-import HttpService from "./http.service";
+import HttpClientService from "./http/http-client.service";
 import {MemberPwaSubscriptionHttpBody} from "@shared/types/http-body.types";
 import HttpPath from "@shared/types/http-path.enum";
-import {lastValueFrom} from "rxjs";
+import {isFunction} from "@shared/helpers/common-types.guards";
+import Environment from "@/utils/environment";
+import {Container, Service} from "typedi";
 
-@Injectable({providedIn: 'root'})
+@Service()
 export default class PwaService {
+  private readonly httpClientService = Container.get(HttpClientService)
+
   private hooks: PwaHooks = {}
   private deferredInstallPrompt: PwaBeforeInstallPromptEvent | null = null
   private registration: Promise<ServiceWorkerRegistration | undefined> | null = null
   private subscription: Promise<PushSubscription | null> | null = null
-
-  constructor(
-    private readonly http: HttpService
-  ) {
-  }
 
   start(hooks: PwaHooks): void {
     const vanillaEvent = 'osteopontault_pwa_beforeinstallpromptevent' in window ? window['osteopontault_pwa_beforeinstallpromptevent'] : null
@@ -159,7 +156,7 @@ export default class PwaService {
       const options = {
         // visible par le user: cet argument est là à titre informatif (=deprecated et toujours = à true) pour expliquer qu'une notification push sera forcément visible par le user sur son mobile
         userVisibleOnly: true,
-        applicationServerKey: process.env.NODE_ENV === 'production' ? PWA_VAPID_PUBLIC_KEY_PROD : PWA_VAPID_PUBLIC_KEY_DEV
+        applicationServerKey: Environment.isDevelopment() ? PWA_VAPID_PUBLIC_KEY_PROD : PWA_VAPID_PUBLIC_KEY_DEV
       }
       this.subscription = subscription ? Promise.resolve(subscription) : registration.pushManager.subscribe(options)
       return this.subscription.then(subscription => {
@@ -205,13 +202,15 @@ export default class PwaService {
     const subscriptionData: PushSubscriptionJSON = subscription.toJSON()
 
     if (subscriptionData && subscriptionData.keys && subscriptionData.endpoint) {
-      return lastValueFrom(this.http
-        .patch<void, MemberPwaSubscriptionHttpBody>(HttpPath.MEMBER_PWA_SUBSCRIPTION, {
-          endpoint: subscriptionData.endpoint,
-          expirationTime: subscriptionData.expirationTime ?? null,
-          p256dh: subscriptionData.keys!['p256dh'],
-          authToken: subscriptionData.keys!['auth']
-        }))
+      return this.httpClientService
+        .patch<void, MemberPwaSubscriptionHttpBody>(
+          HttpPath.MEMBER_PWA_SUBSCRIPTION, {
+            endpoint: subscriptionData.endpoint,
+            expirationTime: subscriptionData.expirationTime ?? null,
+            p256dh: subscriptionData.keys!['p256dh'],
+            authToken: subscriptionData.keys!['auth']
+          }
+        )
     }
 
     console.info('[PWA] Push subscription not available')

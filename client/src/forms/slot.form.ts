@@ -1,14 +1,20 @@
-import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {Practitioner} from "@shared/types/practitioner.enum";
-import {createPatientForm} from "./patient.form";
+import {createPatientForm, type PatientForm} from "./patient.form";
 
-export const createSlotForm = () => new FormGroup({
-  from: new FormControl<Date>(new Date(), Validators.required),
-  to: new FormControl<Date>(new Date(), Validators.required),
-  practitioner: new FormControl<Practitioner>(Practitioner.ROSE, Validators.required),
-  bookedAt: new FormControl<Date|undefined>(undefined, Validators.required),
-  hasPatient: new FormControl<boolean>(false, Validators.required),
+export type SlotForm = {
+  from: Date
+  to: Date
+  practitioner: Practitioner
+  bookedAt: Date | null | undefined
+  hasPatient: boolean
+  patient: PatientForm | null | undefined
+}
+
+export const createSlotForm = (): SlotForm => ({
+  from: new Date(),
+  to: new Date(),
+  practitioner: Practitioner.ROSE,
+  bookedAt: undefined,
+  hasPatient: false,
   patient: createPatientForm(),
 })
-
-export type SlotForm = ReturnType<typeof createSlotForm>

@@ -1,8 +1,8 @@
-import {CacheType} from "@shared/types/cache.type";
-import {Injectable} from "@angular/core";
+import {type CacheType} from "@shared/types/cache.type";
 import {isString} from "@shared/helpers/common-types.guards";
+import {Service} from "typedi";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class CacheService {
   LOCAL_STORAGE_CACHE_KEY = 'osteopontault-cache'
 

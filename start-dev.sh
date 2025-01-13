@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd client2 && yarn run dev &
+cd client && yarn run dev &
 P1=$!
 
 cd server && npm run watch &

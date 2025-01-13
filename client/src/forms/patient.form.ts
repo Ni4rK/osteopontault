@@ -1,11 +1,15 @@
-import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {PatientType} from "@shared/types/patient.interface";
 
-export const createPatientForm = () => new FormGroup({
-  firstname: new FormControl<string>('', Validators.required),
-  lastname: new FormControl<string>('', Validators.required),
-  phone: new FormControl<string>('', Validators.required),
-  type: new FormControl<PatientType>(PatientType.ADULT, Validators.required)
-})
+export type PatientForm = {
+  firstname: string | null | undefined
+  lastname: string | null | undefined
+  phone: string | null | undefined
+  type: PatientType
+}
 
-export type PatientForm = ReturnType<typeof createPatientForm>
+export const createPatientForm = (): PatientForm => ({
+  firstname: '',
+  lastname: '',
+  phone: '',
+  type: PatientType.ADULT
+})
