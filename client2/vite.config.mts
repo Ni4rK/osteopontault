@@ -18,7 +18,9 @@ export default defineConfig({
     Vuetify({
       autoImport: true,
     }),
-    Components(),
+    Components({
+      dts: false
+    }),
   ],
   resolve: {
     alias: {

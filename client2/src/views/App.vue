@@ -92,6 +92,7 @@ import {AnalyticsAction, type AnalyticsActionDataTypes} from "@shared/types/anal
 import type {Patient} from "@shared/types/patient.interface";
 import {Container} from "typedi";
 import Button from "@/components/_design-system/Button.vue";
+import Disclaimer from "@/components/_design-system/Disclaimer.vue";
 
 @Component({
   components: {Button, Appointment, Osteopathy, Infos, Timeline, NextAppointment, Header}
@@ -149,9 +150,9 @@ export default class App extends Vue {
     }
     this.loadAvailabilities()
     this.toasterService.sendToast({
-      type: "success",
-      message: `Pour toute demande urgente, n'hésitez pas à appeler le ${PhoneHelper.toReadableNumber(ROSE_PHONE)}`,
-      timeout: 1000000,
+      type: "info",
+      timeout: 5000,
+      component: Disclaimer
     })
   }
 
@@ -263,6 +264,9 @@ export default class App extends Vue {
     flex-grow: 1;
     flex-shrink: 0;
     margin-bottom: 2rem;
+    @media (max-width: 1100px) {
+      margin-bottom: 1rem;
+    }
   }
 
   &-next-appointment {

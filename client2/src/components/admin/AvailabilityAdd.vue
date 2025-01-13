@@ -138,13 +138,15 @@ export default class AvailabilityAdd extends Vue {
       )
       this.toasterService.sendToast({
         type: "success",
-        message: "Disponibilités ajoutées"
+        message: "Disponibilités ajoutées",
+        timeout: 1000
       })
       this.availabilityAdded()
     } catch {
       this.toasterService.sendToast({
         type: "error",
         message: "Impossible de créer les créneaux",
+        timeout: 2000
       })
     } finally {
       this.isAddingAvailability = false

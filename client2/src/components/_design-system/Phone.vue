@@ -1,12 +1,17 @@
 <template>
-  <a v-if="!noText" :href="programmaticPhone">
-    <v-icon
-      v-if="withIcon"
-      icon="mdi-phone"
-      start
-    />
-    <span>{{ readablePhone }}</span>
-  </a>
+  <template v-if="!noText">
+    <span>
+      <v-icon
+        v-if="!iconInlined"
+        icon="mdi-phone"
+        start
+      />
+    <a :class="colorClass" :href="programmaticPhone">
+      <span v-if="iconInlined" class="mdi mdi-phone unclickable"/>
+      <span>{{ readablePhone }}</span>
+    </a>
+    </span>
+  </template>
   <v-btn
     v-else
     size="small"
@@ -25,8 +30,13 @@ import Button from "@/components/_design-system/Button.vue";
   components: {Button}
 })
 export default class Phone extends Vue {
-  @Prop({ default: true }) withIcon!: boolean
+  @Prop({ default: true }) iconInlined!: boolean
   @Prop({ default: false }) noText!: boolean
+  @Prop({ default: "inherit" }) color!: "white" | "primary" | "inherit"
+
+  get colorClass(): string {
+    return `color-${this.color}`
+  }
 
   get readablePhone(): string {
     return PhoneHelper.toReadableNumber(ROSE_PHONE)

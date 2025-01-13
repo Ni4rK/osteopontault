@@ -6,7 +6,7 @@
   >
     <v-card-title class="d-flex">
       <div class="p-dialog-title">
-        Créneau du {{ DateHelper.format(slot.from, DateFormat.DATE_TIME) }}
+        Créneau du {{ slotDate }}
       </div>
       <v-spacer/>
       <IconPractitioner
@@ -21,9 +21,7 @@
     >
       <template v-slot:text>
         Les créneaux du mercredi sont réservés aux bébés et enfants.
-        Pour toute demande urgente, n'hésitez pas à appeler le
-        <Phone :with-icon="false"/>
-        .
+        Pour toute demande urgente, n'hésitez pas à appeler le <Phone :with-icon="false"/>.
       </template>
     </v-alert>
     <form class="Appointment-form">
@@ -100,19 +98,17 @@ import {Container} from "typedi";
 import DateFormat from "../../../../shared/types/date-format.enum";
 import Button from "@/components/_design-system/Button.vue";
 import Phone from "@/components/_design-system/Phone.vue";
+import Disclaimer from "@/components/_design-system/Disclaimer.vue";
 
 @Component({
-  components: {Phone, Button, InputPhone, IconPractitioner}
+  components: {Disclaimer, Phone, Button, InputPhone, IconPractitioner}
 })
 export default class Appointment extends Vue {
-  @Prop({required: true}) slot!: SlotPersisted
+  @Prop({ required: true }) slot!: SlotPersisted
 
-  @Emit()
-  cancelAppointment() {
-  }
+  @Emit cancelAppointment() {}
 
-  @Emit()
-  appointmentBooked(slot: SlotPersisted, patient: Patient) {
+  @Emit appointmentBooked(slot: SlotPersisted, patient: Patient) {
     return {
       slot,
       patient
@@ -128,6 +124,10 @@ export default class Appointment extends Vue {
 
   isBookingAppointment = false
   form = createPatientForm()
+
+  get slotDate(): string {
+    return DateHelper.format(this.slot.from, DateFormat.DATE_TIME)
+  }
 
   get isSlotForChildrenOnly(): boolean {
     return (
@@ -218,7 +218,7 @@ export default class Appointment extends Vue {
         await this.availabilityService.book(this.slot.uid, patient)
         this.toasterService.sendToast({
           type: "success",
-          message: "Créneau réservé !"
+          message: `Créneau du ${this.slotDate} réservé !`
         })
         this.appointmentBooked(this.slot, patient)
       } catch (error) {

@@ -22,16 +22,9 @@
           class="unclickable"
           size="large"
           :outlined="true"
-          :label="DateHelper.format(availability.date, DateFormat.FULL_DATE)"
+          :label="DateHelper.format(availability.date, formatForOppositeSlot)"
         />
       </template>
-
-      <!-- Practitioner Icon -->
-<!--      <template v-slot:icon>-->
-<!--        <div class="Timeline-separator">-->
-<!--          <Hexagon :width="20" color="#2196F3"/>-->
-<!--        </div>-->
-<!--      </template>-->
 
       <!-- Slots list -->
       <template v-slot:default>
@@ -84,12 +77,20 @@ export default class Timeline extends Vue {
   @Prop({ required: true }) isLoading!: boolean
   @Prop() availabilities!: Availability[]
 
-  loaders = new Array<null>(5).fill(null)
-  loadingSlots = new Array<null>(5).fill(null)
-
   @Emit()
   slotClicked(slot: SlotPersisted) {
     return slot
+  }
+
+  loaders = new Array<null>(5).fill(null)
+  loadingSlots = new Array<null>(5).fill(null)
+
+  get isMobile(): boolean {
+    return document.body.clientWidth < 800
+  }
+
+  get formatForOppositeSlot(): string {
+    return this.isMobile ? DateFormat.MEDIUM_DATE : DateFormat.FULL_DATE
   }
 }
 </script>

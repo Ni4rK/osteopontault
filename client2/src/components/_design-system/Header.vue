@@ -5,7 +5,7 @@
         <div class="Header-top-title-links">
           <h4>Cabinet d'ostéopathie de Roselyne Lean</h4>
           <Location/>
-          <Phone/>
+          <Phone :icon-inlined="false"/>
         </div>
         <div class="Header-top-title-hexagons" @click="minimized = !minimized">
           <Hexagon :width="35" image="images/rose.jpg"/>
@@ -179,10 +179,7 @@ export default class Header extends Vue {
       &-hexagons {
         display: none;
       }
-      .pi {
-        margin-right: .5rem;
-      }
-      a {
+      a, span {
         font-size: .8rem;
         color: var(--primary-50);
         font-weight: normal;
@@ -233,12 +230,6 @@ export default class Header extends Vue {
           cursor: pointer;
           margin-right: 1rem;
         }
-        .pi {
-          font-size: 1.2rem;
-          border: .5px solid;
-          border-radius: 50%;
-          padding: .5rem;
-        }
       }
     }
   }
@@ -264,12 +255,6 @@ export default class Header extends Vue {
       &-links {
         display: flex;
         gap: 1rem;
-        .pi {
-          font-size: 1.2rem;
-          border: .5px solid;
-          border-radius: 50%;
-          padding: .5rem;
-        }
       }
     }
 

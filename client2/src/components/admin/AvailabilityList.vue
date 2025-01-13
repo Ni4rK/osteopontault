@@ -275,6 +275,7 @@ export default class AvailabilityListComponent extends Vue {
       this.toasterService.sendToast({
         type: "error",
         message: "Impossible de récupérer les créneaux",
+        timeout: 2000
       })
     } finally {
       this.isLoadingAvailabilities = false

@@ -153,6 +153,7 @@ export default class SessionsList extends Vue {
       this.toasterService.sendToast({
         type: "error",
         message: "Impossible de récupérer les sessions",
+        timeout: 2000
       })
     } finally {
       this.isLoadingSessions = false

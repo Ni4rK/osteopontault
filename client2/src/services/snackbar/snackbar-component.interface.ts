@@ -1,6 +1,5 @@
-import type {Toast} from "@shared/types/toast.type";
+import type {Toast} from "@/components/_design-system/types.ts";
 
 export default interface SnackbarComponentInterface {
-  showSnackbar: boolean
   toasts: Toast[]
 }

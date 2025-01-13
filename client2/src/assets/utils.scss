@@ -1,5 +1,21 @@
 .unclickable {
   cursor: default;
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.color-inherit {
+  color: inherit;
+}
+
+.color-white {
+  color: rgba(var(--v-theme-white));
+}
+
+.color-primary {
+  color: rgba(var(--v-theme-primary));
 }
 
 .z-1 {
@@ -12,6 +28,12 @@
 
 .z-inf {
   z-index: 9999;
+}
+
+@for $i from 0 through 10 {
+  .gap-#{$i} {
+    gap: #{$i}rem;
+  }
 }
 
 @for $i from 0 through 50 {

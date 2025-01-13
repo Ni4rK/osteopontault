@@ -28,7 +28,8 @@ export default class Logout extends Vue {
     })
     this.toastService.sendToast({
       type: "success",
-      message: "Déconnecté"
+      message: "Déconnecté",
+      timeout: 1000
     })
     this.loggedOut()
   }

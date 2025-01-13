@@ -245,13 +245,15 @@ export default class AvailabilityEdit extends Vue {
       }, sendNotification)
       this.toasterService.sendToast({
         type: "success",
-        message: "Créneau modifié"
+        message: "Créneau modifié",
+        timeout: 1000
       })
       this.slotEdited();
     } catch {
       this.toasterService.sendToast({
         type: "error",
         message: "Impossible de modifier le créneau",
+        timeout: 2000
       })
     } finally {
       this.isEditingSlot = false
@@ -269,13 +271,15 @@ export default class AvailabilityEdit extends Vue {
       await this.availabilityService.remove(this.slot)
       this.toasterService.sendToast({
         type: "success",
-        message: "Créneau supprimé"
+        message: "Créneau supprimé",
+        timeout: 1000
       })
       this.slotRemoved();
     } catch {
       this.toasterService.sendToast({
         type: "error",
         message: "Impossible de supprimer le créneau",
+        timeout: 2000
       })
     } finally {
       this.isEditingSlot = false

@@ -70,7 +70,8 @@ export default class Login extends Vue{
       this.isAuthenticatingAsPractitioner = false
       this.toastService.sendToast({
         type: "success",
-        message: `Connecté en tant que ${this.username}`
+        message: `Connecté en tant que ${this.username}`,
+        timeout: 1000
       })
       this.isAuthenticatingAsPractitioner = false
       this.loggedIn()
