@@ -64,10 +64,11 @@
         :active="true"
         @click="cancelAppointment()"
       />
+      <v-spacer v-if="isMobile"/>
       <Button
-        label="Réserver le créneau"
         color="secondary"
         size="large"
+        :label="isMobile ? 'Réserver' : 'Réserver le créneau'"
         :active="true"
         :disabled="!canBook"
         :loading="isBookingAppointment"
@@ -95,10 +96,11 @@ import {AnalyticsAction} from "@shared/types/analytics.types";
 import InputPhone from "@/components/_design-system/InputPhone.vue";
 import {createPatientForm} from "@/forms/patient.form";
 import {Container} from "typedi";
-import DateFormat from "../../../../shared/types/date-format.enum";
+import DateFormat from "@shared/types/date-format.enum";
 import Button from "@/components/_design-system/Button.vue";
 import Phone from "@/components/_design-system/Phone.vue";
 import Disclaimer from "@/components/_design-system/Disclaimer.vue";
+import Exception from "@/utils/exception";
 
 @Component({
   components: {Disclaimer, Phone, Button, InputPhone, IconPractitioner}
@@ -124,6 +126,10 @@ export default class Appointment extends Vue {
 
   isBookingAppointment = false
   form = createPatientForm()
+
+  get isMobile(): boolean {
+    return document.body.clientWidth < 800
+  }
 
   get slotDate(): string {
     return DateHelper.format(this.slot.from, DateFormat.DATE_TIME)
@@ -215,16 +221,15 @@ export default class Appointment extends Vue {
       }
       this.isBookingAppointment = true
       try {
-        await this.availabilityService.book(this.slot.uid, patient)
-        this.toasterService.sendToast({
-          type: "success",
-          message: `Créneau du ${this.slotDate} réservé !`
-        })
-        this.appointmentBooked(this.slot, patient)
-      } catch (error) {
+        const slotConfirmed = await this.availabilityService.book(this.slot.uid, patient)
+        if (!slotConfirmed.patient) {
+          throw new Exception(`Booking for slot ${this.slot.uid} has been confirmed, but patient still empty`, patient)
+        }
+        this.appointmentBooked(slotConfirmed, slotConfirmed.patient)
+      } catch (error: string | unknown) {
         this.toasterService.sendToast({
           type: "error",
-          message: "Impossible de réserver le créneau"
+          message: isString(error) && error.length ? error : "Impossible de réserver le créneau"
         })
         const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_BOOKED] = {
           date: this.slot.from,

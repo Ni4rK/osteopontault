@@ -127,7 +127,7 @@ export default class AvailabilityService {
     }
   }
 
-  static async bookAvailabilitySlots(slotUid: string, patient: Patient): Promise<void> {
+  static async bookAvailabilitySlots(slotUid: string, patient: Patient): Promise<SlotPersisted> {
     const slot = await this.find(slotUid)
     if (slot.hasPatient) {
       throw new BadRequestException("Créneau déjà réservé")
@@ -157,6 +157,12 @@ export default class AvailabilityService {
 
     await AvailabilityService.notifyPractitioner(slot, patient)
     await AvailabilityService.notifyPatient(slot, patient)
+
+    return {
+      ...slot,
+      hasPatient: true,
+      patient: patient
+    }
   }
 
   static async removeAvailabilitySlots(slotsUid: string[]): Promise<void> {

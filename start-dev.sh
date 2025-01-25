@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+docker compose up -d
+
 cd client && yarn run dev &
 P1=$!
 

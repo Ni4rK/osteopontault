@@ -23,7 +23,7 @@
       <Timeline
         class="App-timeline"
         id="timeline"
-        :is-loading="isLoadingAvailabilities"
+        :is-loading="!isAuthenticated || isLoadingAvailabilities"
         :availabilities="filteredAvailabilities"
         @scroll="onScroll()"
         @slot-clicked="onSlotClicked($event, false)"
@@ -66,6 +66,19 @@
         @cancel-appointment="onCancelAppointment()"
       />
     </v-dialog>
+
+    <v-dialog
+      v-model="isBookingSuccessfulOpen"
+      content-class="w-auto"
+      :fullscreen="isMobile"
+    >
+      <BookingSuccessful
+        v-if="slotOfBookingSuccessful"
+        :slot="slotOfBookingSuccessful"
+        :patient="slotOfBookingSuccessful!.patient"
+        @close="onCloseBookingSuccessful()"
+      />
+    </v-dialog>
   </div>
 </template>
 
@@ -91,9 +104,10 @@ import type {Patient} from "@shared/types/patient.interface";
 import {Container} from "typedi";
 import Button from "@/components/_design-system/Button.vue";
 import Disclaimer from "@/components/_design-system/Disclaimer.vue";
+import BookingSuccessful from "@/components/app/BookingSuccessful.vue";
 
 @Component({
-  components: {Button, Appointment, Osteopathy, Infos, Timeline, NextAppointment, Header}
+  components: {BookingSuccessful, Button, Appointment, Osteopathy, Infos, Timeline, NextAppointment, Header}
 })
 export default class App extends Vue {
   private readonly toasterService = Container.get(ToasterService)
@@ -107,11 +121,14 @@ export default class App extends Vue {
   availabilities: Availability[] = []
   loadAvailabilitiesInterval: number | null = null
   slotForAppointment: SlotPersisted | null = null
+  slotOfBookingSuccessful: SlotPersisted | null = null
 
+  isAuthenticated = false
   isLoadingAvailabilities = false
   isInfosOpen = false
   isOsteopathyOpen = false
   isAppointmentOpen = false
+  isBookingSuccessfulOpen = false
 
   get isMobile(): boolean {
     return document.body.clientWidth < 800
@@ -142,6 +159,7 @@ export default class App extends Vue {
     this.cacheService.resetForAuthentication()
     const isAuthenticatedAsGuest = await this.authenticationHttpService.authenticate(Role.GUEST)
     const isAuthenticatedAsPractitioner = this.authenticationHttpService.isAuthenticated(Role.PRACTITIONER)
+    this.isAuthenticated = isAuthenticatedAsGuest
     if (isAuthenticatedAsGuest && !isAuthenticatedAsPractitioner) {
       this.analyticsPulsarService.start()
     }
@@ -215,6 +233,7 @@ export default class App extends Vue {
 
   onAppointmentBooked(data: { slot: SlotPersisted; patient: Patient }) {
     this.slotForAppointment = null
+    this.isAppointmentOpen = false
     this.loadAvailabilities()
 
     const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_BOOKED] = {
@@ -223,6 +242,10 @@ export default class App extends Vue {
       success: true
     }
     this.analyticsPulsarService.action(AnalyticsAction.APPOINTMENT_BOOKED, analyticsData)
+
+    this.slotOfBookingSuccessful = data.slot
+    this.isBookingSuccessfulOpen = true
+    this.analyticsPulsarService.action(AnalyticsAction.BOOKING_SUCCESSFUL_OPENED)
   }
 
   onCancelAppointment() {
@@ -231,6 +254,14 @@ export default class App extends Vue {
     this.loadAvailabilities()
 
     this.analyticsPulsarService.action(AnalyticsAction.APPOINTMENT_CANCELED)
+  }
+
+  onCloseBookingSuccessful() {
+    this.slotOfBookingSuccessful = null
+    this.isBookingSuccessfulOpen = false
+    this.loadAvailabilities()
+
+    this.analyticsPulsarService.action(AnalyticsAction.BOOKING_SUCCESSFUL_CLOSED)
   }
 
   async loadAvailabilities() {

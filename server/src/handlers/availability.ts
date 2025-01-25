@@ -37,10 +37,10 @@ export const availabilityHandler = handlerWrapper(async (request: HttpRequest): 
     if (!isAvailabilityBookHttpBody(body)) {
       throw new BadRequestException()
     }
-    await AvailabilityService.bookAvailabilitySlots(body.uid, body.patient)
-    return http200EmptyResponse
+    return AvailabilityService.bookAvailabilitySlots(body.uid, body.patient)
   }
 
+  // DELETE SLOT
   if (request.path === HttpPath.AVAILABILITY_DELETE && request.method === HttpMethod.DELETE) {
     if (!isPractitioner(request.user)) {
       throw new UnauthorizedException()

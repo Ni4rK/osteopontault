@@ -9,7 +9,7 @@
           <Location/>
         </div>
         <div class="Infos-item">
-          <Phone/>
+          <Phone :icon-inlined="false"/>
         </div>
         <div class="Infos-item">
           <v-icon start icon="mdi-currency-eur"/>

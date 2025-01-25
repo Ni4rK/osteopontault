@@ -213,6 +213,10 @@ export default class SessionsList extends Vue {
         return "A changé le type de patient :"
       case AnalyticsAction.APPOINTMENT_BOOKED:
         return "➡️ A cliqué pour réserver le créneau du"
+      case AnalyticsAction.BOOKING_SUCCESSFUL_OPENED:
+        return "A ouvert la popup `Créneau réservé`"
+      case AnalyticsAction.BOOKING_SUCCESSFUL_CLOSED:
+        return "A fermé la popup `Créneau réservé`"
       case AnalyticsAction.LOCATION_CLICKED:
         return "A cliqué sur le lien Maps pour voir la localisation du cabinet"
       case AnalyticsAction.PHONE_CLICKED:

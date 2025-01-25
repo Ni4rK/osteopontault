@@ -37,6 +37,39 @@
           type="number"
           inputmode="numeric"
         />
+
+        <div class="d-flex" v-if="newAvailability.howMany === 1">
+          <v-spacer/>
+          <v-switch
+            v-model="hasPatient"
+            label="Patient"
+            color="primary"
+            @change="onHasPatientChanged()"
+          />
+        </div>
+        <template v-if="hasPatient && patient && newAvailability.howMany === 1">
+          <v-text-field
+            v-model="patient!.lastname"
+            variant="outlined"
+            label="Nom"
+            rounded
+          />
+          <v-text-field
+            v-model="patient!.firstname"
+            variant="outlined"
+            label="Prénom"
+            rounded
+          />
+          <InputPhone @update="onPhoneChanged($event)"/>
+          <v-select
+            v-model="patient!.type"
+            variant="outlined"
+            label="Type de séance"
+            :autofocus="false"
+            :items="Object.values(PatientType)"
+            rounded
+          />
+        </template>
       </form>
     </v-card-text>
 
@@ -72,9 +105,11 @@ import {isDate} from "@shared/helpers/common-types.guards";
 import DateHelper from "@shared/helpers/date.helper";
 import InputDate from "@/components/_design-system/InputDate.vue";
 import Button from "@/components/_design-system/Button.vue";
+import {type Patient, PatientType} from "@shared/types/patient.interface";
+import InputPhone from "@/components/_design-system/InputPhone.vue";
 
 @Component({
-  components: {Button, InputDate}
+  components: {InputPhone, Button, InputDate}
 })
 export default class AvailabilityAdd extends Vue {
   @Prop({ required: true }) practitioner!: Practitioner
@@ -89,9 +124,12 @@ export default class AvailabilityAdd extends Vue {
 
   readonly Practitioner = Practitioner
   readonly DateFormat = DateFormat
+  readonly PatientType = PatientType
   readonly Object = Object
 
   isAddingAvailability = false
+  hasPatient = false
+  patient: Patient | null = null
   newAvailability = {
     date: new Date(),
     practitioner: Practitioner.ROSE as Practitioner,
@@ -127,6 +165,26 @@ export default class AvailabilityAdd extends Vue {
     }
   }
 
+  onHasPatientChanged() {
+    if (this.hasPatient) {
+      this.patient = {
+        firstname: "",
+        lastname: "",
+        phone: "0",
+        type: PatientType.ADULT
+      }
+    }
+  }
+
+  onPhoneChanged(phone: string) {
+    if (!this.patient) {
+      return
+    }
+    if (this.patient?.phone) {
+      this.patient.phone = phone
+    }
+  }
+
   async onAddAvailability() {
     this.isAddingAvailability = true
     try {
@@ -134,7 +192,8 @@ export default class AvailabilityAdd extends Vue {
         this.newAvailability.practitioner,
         this.newAvailability.date,
         this.newAvailability.stepTime,
-        this.newAvailability.howMany
+        this.newAvailability.howMany,
+        this.newAvailability.howMany === 1 ? this.patient : null
       )
       this.toasterService.sendToast({
         type: "success",

@@ -9,15 +9,14 @@ import {
 import {Practitioner} from "@shared/types/practitioner.enum";
 import {SlotPersisted} from "@shared/types/slot.interface";
 import {Patient} from "@shared/types/patient.interface";
-import ToasterService from "../snackbar/toaster.service";
 import Exception from "@/utils/exception";
 import {AxiosError} from "axios";
 import {Container, Service} from "typedi";
+import Logger from "@/utils/logger";
 
 @Service()
 export default class AvailabilityHttpService {
   private readonly httpClientService = Container.get(HttpClientService)
-  private readonly toasterService = Container.get(ToasterService)
 
   public async list(from?: Date, to?: Date): Promise<Availability[]> {
     try {
@@ -36,9 +35,6 @@ export default class AvailabilityHttpService {
         query.push(`to=${to.toISOString()}`)
       }
       const availabilities = await this.httpClientService.get<Availability[]>(`${baseUrl}?${query.join('&')}`)
-      if (!availabilities) {
-        return []
-      }
       availabilities.forEach((availability) => {
         availability.slots.sort((s1, s2) => s1.from < s2.from ? -1 : 1)
       })
@@ -49,7 +45,7 @@ export default class AvailabilityHttpService {
     }
   }
 
-  public async create(practitioner: Practitioner, date: Date, stepTime: number, howMany: number): Promise<void> {
+  public async create(practitioner: Practitioner, date: Date, stepTime: number, howMany: number, patient: Patient | null): Promise<void> {
     try {
       const payload: AvailabilityInsertHttpBody = []
       date.setSeconds(0)
@@ -63,8 +59,8 @@ export default class AvailabilityHttpService {
           from: from.toISOString(),
           to: to.toISOString(),
           practitioner: practitioner,
-          hasPatient: false,
-          patient: null
+          hasPatient: !!patient,
+          patient: patient
         })
       }
       return this.httpClientService.post<void, AvailabilityInsertHttpBody>(HttpPath.AVAILABILITY_INSERT, payload)
@@ -88,22 +84,19 @@ export default class AvailabilityHttpService {
     }
   }
 
-  public async book(uid: string, patient: Patient): Promise<void> {
+  public async book(uid: string, patient: Patient): Promise<SlotPersisted> {
     try {
-      return this.httpClientService.patch<void, AvailabilityBookHttpBody>(HttpPath.AVAILABILITY_BOOK, {
+      return this.httpClientService.patch<SlotPersisted, AvailabilityBookHttpBody>(HttpPath.AVAILABILITY_BOOK, {
         uid: uid,
         patient: patient
       })
     } catch (error) {
       console.error(error)
       if (error instanceof AxiosError && error.message) {
-        this.toasterService.sendToast({
-          type: "error",
-          message: error.message
-        })
-      } else {
-        throw new Exception(`Unable to book slot with uid ${uid}`, patient)
+        throw error.message
       }
+      Logger.error(`Unable to book slot with uid ${uid}`, patient)
+      throw new Error()
     }
   }
 

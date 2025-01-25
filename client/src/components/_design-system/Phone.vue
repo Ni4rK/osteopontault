@@ -2,12 +2,12 @@
   <template v-if="!noText">
     <span>
       <v-icon
-        v-if="!iconInlined"
+        v-if="!iconInlined && !noIcon"
         icon="mdi-phone"
         start
       />
     <a :class="colorClass" :href="programmaticPhone">
-      <span v-if="iconInlined" class="mdi mdi-phone unclickable"/>
+      <span v-if="iconInlined && !noIcon" class="mdi mdi-phone unclickable"/>
       <span>{{ readablePhone }}</span>
     </a>
     </span>
@@ -32,6 +32,7 @@ import Button from "@/components/_design-system/Button.vue";
 export default class Phone extends Vue {
   @Prop({ default: true }) iconInlined!: boolean
   @Prop({ default: false }) noText!: boolean
+  @Prop({ default: false }) noIcon!: boolean
   @Prop({ default: "inherit" }) color!: "white" | "primary" | "inherit"
 
   get colorClass(): string {

@@ -1,4 +1,5 @@
 import PhoneHelper from "./phone.helper";
+import {Practitioner} from "../types/practitioner.enum";
 
 export default class TextHelper {
   static toUcFirst(value: string): string {
@@ -26,5 +27,12 @@ export default class TextHelper {
 
   static toReadablePhoneNumber(value: string): string {
     return PhoneHelper.toReadableNumber(value)
+  }
+
+  static toPractitionerName(value: Practitioner): string {
+    if (value === Practitioner.ANAIS) {
+      return "Anaïs"
+    }
+    return "Roselyne"
   }
 }
