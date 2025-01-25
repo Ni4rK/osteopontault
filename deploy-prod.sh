@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
 if [ "$(git status -s | wc -l)" -ne 0 ]; then
-  echo "Git state is dirty. Clean and commit to deploy in prod."
-  exit 1
+  echo "Git state is dirty."
+  read -rp "Are you sure you want to continue? (y/N) " gitContinue
+  if [ "$gitContinue" != 'y' ]; then
+    exit 1
+  fi
 fi
 
 ################################
