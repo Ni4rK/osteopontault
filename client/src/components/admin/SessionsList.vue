@@ -175,11 +175,11 @@ export default class SessionsList extends Vue {
     sessionsForUser: { userId: string; sessions: AnalyticsActionsForSession[] },
     index: number
   ): string {
-    const usernameParts: string[] = []
+    const descriptionParts: string[] = []
     const totalSessions = sessionsForUser.sessions.length
     if (this.practitionerId === sessionsForUser.userId) {
       const username = this.cacheService.cache.username
-      return `#${index+1} — User ${username} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
+      return `#${index+1} — User <${username}> — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
     }
 
     // get firstname
@@ -188,7 +188,7 @@ export default class SessionsList extends Vue {
       const firstnameAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED)
       if (firstnameAction && firstnameAction.data) {
         const data: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED] = JSON.parse(firstnameAction.data)
-        usernameParts.push(data.firstname)
+        descriptionParts.push(data.firstname)
         break
       }
     }
@@ -199,15 +199,26 @@ export default class SessionsList extends Vue {
       const lastnameAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_LASTNAME_FILLED)
       if (lastnameAction && lastnameAction.data) {
         const data: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_LASTNAME_FILLED] = JSON.parse(lastnameAction.data)
-        usernameParts.push(data.lastname)
+        descriptionParts.push(data.lastname)
         break
       }
     }
 
-    if (!usernameParts.length) {
-      return `#${index + 1} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
+    // get last booking state
+    for (let s = sessionsForUser.sessions.length - 1; s >= 0; s -= 1) {
+      const session = sessionsForUser.sessions[s]
+      const appointmentBookedAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_BOOKED)
+      if (appointmentBookedAction && appointmentBookedAction.data) {
+        const data: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_BOOKED] = JSON.parse(appointmentBookedAction.data)
+        descriptionParts.push(data.success ? '✅' : '🔴')
+        break
+      }
     }
-    return `#${index + 1} — User ${usernameParts.join(" ")} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
+
+    if (!descriptionParts.length) {
+      return `#${index + 1} — User <unknown> — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
+    }
+    return `#${index + 1} — User ${descriptionParts.join(" ")} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
   }
 
   getHeaderForSession(session: AnalyticsActionsForSession, index: number): string {
