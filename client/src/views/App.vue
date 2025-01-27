@@ -234,6 +234,8 @@ export default class App extends Vue {
   onAppointmentBooked(data: { slot: SlotPersisted; patient: Patient }) {
     this.slotForAppointment = null
     this.isAppointmentOpen = false
+    this.slotOfBookingSuccessful = data.slot
+    this.isBookingSuccessfulOpen = true
     this.loadAvailabilities()
 
     const analyticsData: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_BOOKED] = {
@@ -243,8 +245,6 @@ export default class App extends Vue {
     }
     this.analyticsPulsarService.action(AnalyticsAction.APPOINTMENT_BOOKED, analyticsData)
 
-    this.slotOfBookingSuccessful = data.slot
-    this.isBookingSuccessfulOpen = true
     this.analyticsPulsarService.action(AnalyticsAction.BOOKING_SUCCESSFUL_OPENED)
   }
 
@@ -259,7 +259,6 @@ export default class App extends Vue {
   onCloseBookingSuccessful() {
     this.slotOfBookingSuccessful = null
     this.isBookingSuccessfulOpen = false
-    this.loadAvailabilities()
 
     this.analyticsPulsarService.action(AnalyticsAction.BOOKING_SUCCESSFUL_CLOSED)
   }
