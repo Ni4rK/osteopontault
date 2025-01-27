@@ -78,11 +78,13 @@ import {Container} from "typedi";
 import AnalyticsHttpService from "@/services/http/analytics.http-service";
 import Button from "@/components/_design-system/Button.vue";
 import ToasterService from "@/services/snackbar/toaster.service";
+import {CacheService} from "@/services/cache.service";
 
 @Component({
   components: {Button}
 })
 export default class SessionsList extends Vue {
+  private readonly cacheService = Container.get(CacheService)
   private readonly analyticsService = Container.get(AnalyticsHttpService)
   private readonly toasterService = Container.get(ToasterService)
 
@@ -92,9 +94,13 @@ export default class SessionsList extends Vue {
   isLoadingSessions = false
   baseDateForSearch = new Date()
   sessionsByUser: Array<{
-    user: string
+    userId: string
     sessions: AnalyticsActionsForSession[]
   }> = []
+
+  get practitionerId(): string | null {
+    return this.cacheService.cache.userId
+  }
 
   mounted() {
     this.loadSessions()
@@ -139,7 +145,7 @@ export default class SessionsList extends Vue {
         if (indexByUser[userId] === undefined) {
           indexByUser[userId] = this.sessionsByUser.length
           this.sessionsByUser.push({
-            user: userId,
+            userId: userId,
             sessions: []
           })
         }
@@ -148,7 +154,11 @@ export default class SessionsList extends Vue {
       for (const sessionsForUser of this.sessionsByUser) {
         sessionsForUser.sessions.sort((s1, s2) => s1.sessionId < s2.sessionId ? -1 : 1)
       }
-      this.sessionsByUser.sort((u1, u2) => u1.user < u2.user ? -1 : 1)
+      this.sessionsByUser.sort((u1, u2) => {
+        const lastSessionUser1 = u1.sessions[u1.sessions.length - 1]
+        const lastSessionUser2 = u2.sessions[u2.sessions.length - 1]
+        return lastSessionUser1.sessionStartDate < lastSessionUser2.sessionStartDate ? -1 : 1
+      })
     } catch {
       this.toasterService.sendToast({
         type: "error",
@@ -162,11 +172,34 @@ export default class SessionsList extends Vue {
   }
 
   getHeaderForUserSessions(
-    sessionsForUser: { user: string; sessions: AnalyticsActionsForSession[] },
+    sessionsForUser: { userId: string; sessions: AnalyticsActionsForSession[] },
     index: number
   ): string {
+    const usernameParts: string[] = []
     const totalSessions = sessionsForUser.sessions.length
-    return `User #${index + 1} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.user}`
+    if (this.practitionerId === sessionsForUser.userId) {
+      const username = this.cacheService.cache.username
+      return `#${index+1} — User ${username} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
+    }
+
+    for (const session of sessionsForUser.sessions) {
+      const firstnameAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED)
+      const lastnameAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_LASTNAME_FILLED)
+      if (firstnameAction) {
+        usernameParts.push((firstnameAction.data as unknown as AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED]).firstname)
+      }
+      if (lastnameAction) {
+        usernameParts.push((lastnameAction.data as unknown as AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_LASTNAME_FILLED]).lastname)
+      }
+      if (usernameParts.length === 2) {
+        break
+      }
+    }
+
+    if (!usernameParts.length) {
+      return `#${index + 1} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
+    }
+    return `#${index + 1} — User ${usernameParts.join(" ")} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
   }
 
   getHeaderForSession(session: AnalyticsActionsForSession, index: number): string {
