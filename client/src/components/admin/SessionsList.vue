@@ -182,16 +182,24 @@ export default class SessionsList extends Vue {
       return `#${index+1} — User ${username} — ${totalSessions} ${totalSessions > 1 ? 'sessions' : 'session'} — ID ${sessionsForUser.userId}`
     }
 
-    for (const session of sessionsForUser.sessions) {
+    // get firstname
+    for (let s = sessionsForUser.sessions.length - 1; s >= 0; s -= 1) {
+      const session = sessionsForUser.sessions[s]
       const firstnameAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED)
+      if (firstnameAction && firstnameAction.data) {
+        const data: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED] = JSON.parse(firstnameAction.data)
+        usernameParts.push(data.firstname)
+        break
+      }
+    }
+
+    // get lastname
+    for (let s = sessionsForUser.sessions.length - 1; s >= 0; s -= 1) {
+      const session = sessionsForUser.sessions[s]
       const lastnameAction = session.actions.findLast(action => action.action === AnalyticsAction.APPOINTMENT_LASTNAME_FILLED)
-      if (firstnameAction) {
-        usernameParts.push((firstnameAction.data as unknown as AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_FIRSTNAME_FILLED]).firstname)
-      }
-      if (lastnameAction) {
-        usernameParts.push((lastnameAction.data as unknown as AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_LASTNAME_FILLED]).lastname)
-      }
-      if (usernameParts.length === 2) {
+      if (lastnameAction && lastnameAction.data) {
+        const data: AnalyticsActionDataTypes[AnalyticsAction.APPOINTMENT_LASTNAME_FILLED] = JSON.parse(lastnameAction.data)
+        usernameParts.push(data.lastname)
         break
       }
     }
