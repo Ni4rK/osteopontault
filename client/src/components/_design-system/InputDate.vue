@@ -79,7 +79,9 @@ export default class InputDate extends Vue {
   }
 
   get timeValue(): string {
-    if (!this.hoursValue || !this.minutesValue) {
+    const hasHours = this.hoursValue === 0 || !!this.hoursValue
+    const hasMinutes = this.minutesValue === 0 || !!this.minutesValue
+    if (!hasHours || !hasMinutes) {
       return `${this.datetime.getHours()}:${this.datetime.getMinutes()}`
     }
     return `${this.hoursValue}:${this.minutesValue}`
